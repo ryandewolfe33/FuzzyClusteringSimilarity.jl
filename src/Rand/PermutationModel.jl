@@ -12,7 +12,8 @@ function permutationModel(z1::AbstractMatrix, z2::AbstractMatrix,  p::Integer=1,
 end
         
     
-#Algorithm 1 from FuzzyAgreement
+# Algorithm 1 from FuzzyAgreement
+# https://doi.org/10.1007/s00357-021-09407-3
 function makeS(x::AbstractVector, y::AbstractVector)
     n = length(x)
     R = 1

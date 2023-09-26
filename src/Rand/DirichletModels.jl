@@ -1,12 +1,11 @@
 using Distributions
 using LinearAlgebra
 
-#TODO Better disagreement distribution approximation
-
 
 function disagreement(x::Vector{<:Real}, y::Vector{<:Real}, q::Integer=1)
     return norm(x-y, q)/(2^(1/q))
 end
+
 
 function discordance(
     x1::Vector{<:Real},
@@ -21,9 +20,11 @@ function discordance(
     return discordance(disagreement1, disagreement2, p)
 end
 
+
 function discordance(disagreement1::Real, disagreement2::Real, p::Integer=1)
     return abs(disagreement1 - disagreement2)^p
 end
+
 
 function endc(d1::Distribution, d2::Distribution, p=1, q=1)
     num = 1000000
@@ -53,6 +54,7 @@ function endc(d1::Distribution, d2::Distribution, p=1, q=1)
     return 1 - totalDiscordance/num
 end
 
+
 function endc(d::Distribution, z2::AbstractMatrix{<:AbstractFloat}, p::Integer, q::Integer)
     num = 100000
     z2Disagreements = approxDisagreementDistribution(z2, q)
@@ -75,6 +77,7 @@ function endc(d::Distribution, z2::AbstractMatrix{<:AbstractFloat}, p::Integer, 
     return 1 - totalDiscordance / num
 end
 
+
 function endc(d::Distribution, z2::AbstractMatrix{<:Integer}, p::Integer, q::Integer)
     num = 100000
     
@@ -88,7 +91,13 @@ function endc(d::Distribution, z2::AbstractMatrix{<:Integer}, p::Integer, q::Int
     totalDiscorandce = 0.
     for _ in 1:num
         x1 = rand(d)
+        while !all(isfinite, x1)
+            x1 = rand(d)
+        end
         x2 = rand(d)
+        while !all(isfinite, x2)
+            x2 = rand(d)
+        end
         xDisagreement = disagreement(x1, x2, q)
         
         #z2 agree (0) with prob pz2agree
@@ -99,12 +108,13 @@ function endc(d::Distribution, z2::AbstractMatrix{<:Integer}, p::Integer, q::Int
     return 1 - totalDiscorandce / num
 end
 
+
 function endc(d::Multinomial, z2::AbstractMatrix{<:AbstractFloat}, p::Integer, q::Integer)
-    a = makeDisagreements(z2, q)
+    disagreements = makeApproxDisagreements(z2, q)
     probabilityDistAgrees = sum( (d.p).^2 )
     
     totalDiscordance = 0.0
-    for i in axes(a,1)
+    for i in axes(disagreements,1)
         #dist agree
         totalDiscordance += discordance(0, a[i], p) * probabilityDistAgrees
         #dist disagree
@@ -112,6 +122,7 @@ function endc(d::Multinomial, z2::AbstractMatrix{<:AbstractFloat}, p::Integer, q
     end
     return 1 - totalDiscordance / length(a)
 end
+
 
 function endc(d::Multinomial, z2::AbstractMatrix{<:Integer}, p::Integer, q::Integer)
     pDAgree = sum( (d.p).^2)
@@ -125,10 +136,12 @@ function fitDist(z::AbstractMatrix{<:Integer})
     return Multinomial(1, p)
 end
 
+
 function fitDist(z::AbstractMatrix{<:AbstractFloat})
     try
         α = mleFixedPoint(z)[1]
-        if all(αi < 1e-4 for αi in α)
+        # α is close to hard, or Nan (caused by close to hard mle)
+        if all(αi < 1e-4 for αi in α) || !isfinite.(α)
             return fitHard(z)
         end
         return Dirichlet(α)
@@ -140,35 +153,40 @@ function fitDist(z::AbstractMatrix{<:AbstractFloat})
             throw(e)
         end
     end
-    # Approximate sparse dirichlets as categorical
 end
-    
+   
+
 function fitHard(z::AbstractMatrix{<:AbstractFloat})
         p = vec(sum(z, dims=2))/size(z, 2)
         return Multinomial(1, p)
 end
 
+
 function symDist(z::AbstractMatrix{<:Integer})
     return Multinomial(1, size(z, 1))
 end
-    
+ 
+
 function symDist(z::AbstractMatrix{<:AbstractFloat})
-    α = mlePrecisionFixedPoint(z)[1]
+    precision = mlePrecisionFixedPoint(z)[1]
     numDimensions = size(z, 1)
-    if α / numDimensions < 1e-4
+    if precision / numDimensions < 1e-4 || !isfinite.(precision)
         return Multinomial(1, size(z, 1))
     end
-    return Dirichlet(numDimensions, α/numDimensions)
+    return Dirichlet(numDimensions, precision/numDimensions)
 end
-    
+  
+
 function flatDist(z::AbstractMatrix{<:Real})
     return Dirichlet(ones(size(z, 1)))
 end
-    
-function logβ(α::T where T<:AbstractFloat, dim::Int64)
-    return Dirichlet(dim, α).lmnB
-end
-    
+  
+
+#function logβ(α::T where T<:AbstractFloat, dim::Int64)
+#    return Dirichlet(dim, α).lmnB
+#end
+  
+
 function makeDisagreements(z::AbstractMatrix, q::Integer=1)
     npoints = size(z, 2)
     n = npoints * (npoints-1) / 2
@@ -183,67 +201,76 @@ function makeDisagreements(z::AbstractMatrix, q::Integer=1)
     end
     return disagreements
 end
-        
-function approxDisagreementDistribution(z::Matrix, q::Integer)
+  
+
+function approxDisagreementDistribution(z::Matrix, q::Integer, nbins::Integer=1000)
     disagreements = makeDisagreements(z, q)
-    pdf = zeros(Float64, 1000)
+    pdf = zeros(Float64, nbins)
     for d in disagreements
-        bin = min(floor(Int, 1000 * d) + 1, 1000)
+        bin = min(floor(Int, nbins * d) + 1, nbins)
         pdf[bin] += 1
     end
     pdf /= length(disagreements)
     return pdf
 end
 
-function symTwoSided(z1::AbstractMatrix, z2::AbstractMatrix, p::Integer, q::Integer)
-    d1 = symDist(z1)
-    d2 = symDist(z2)
-    return endc(d1, d2, p, q)
+
+function symTwoSided(clustering1::AbstractMatrix, clustering2::AbstractMatrix, p::Integer, q::Integer)
+    distribution1 = symDist(clustering1)
+    distribution2 = symDist(clustering2)
+    return endc(distribution1, distribution2, p, q)
 end   
 
-function symTwoSided(z1::AbstractMatrix{<:Integer}, z2::AbstractMatrix{<:Integer}, p::Integer, q::Integer)
-    c1 = size(z1, 1)
-    c2 = size(z2, 1)
-    return 1/(c1*c2) + (1-(1/c1))*(1-(1/c2))
+
+function symTwoSided(clustering1::AbstractMatrix{<:Integer}, clustering2::AbstractMatrix{<:Integer}, p::Integer, q::Integer)
+    numClusters1 = size(clustering1, 1)
+    numClusters2 = size(clustering2, 1)
+    return 1/(numClusters1*numClusters2) + (1-(1/numClusters1))*(1-(1/numClusters2))
 end
 
-function symOneSided(z1::AbstractMatrix, z2::AbstractMatrix, p::Integer, q::Integer)
-    d1 = symDist(z1)
-    return endc(d1, z2, p, q)
+
+function symOneSided(clustering1::AbstractMatrix, clustering2::AbstractMatrix, p::Integer, q::Integer)
+    distribution1 = symDist(clustering1)
+    return endc(distribution1, clustering2, p, q)
 end
 
-function fitTwoSided(z1::AbstractMatrix, z2::AbstractMatrix, p::Integer, q::Integer)
-    d1 = fitDist(z1)
-    d2 = fitDist(z2)
-    return endc(d1, d2, p, q)
+
+function fitTwoSided(clustering1::AbstractMatrix, clustering2::AbstractMatrix, p::Integer, q::Integer)
+    distribution1 = fitDist(clustering1)
+    distribution2 = fitDist(clustering2)
+    return endc(distribution1, distribution2, p, q)
 end
 
-function fitTwoSided(z1::AbstractMatrix{<:Integer}, z2::AbstractMatrix{<:Integer}, p::Integer, q::Integer)
-    α = vec(sum(z1, dims=2))/size(z1, 2)
-    β = vec(sum(z2, dims=2))/size(z2, 2)
+
+function fitTwoSided(clustering1::AbstractMatrix{<:Integer}, clustering2::AbstractMatrix{<:Integer}, p::Integer, q::Integer)
+    α = vec(sum(clustering1, dims=2))/size(clustering1, 2)
+    β = vec(sum(clustering2, dims=2))/size(clustering2, 2)
     
-    z1agree = sum(α.^2)
-    z2agree = sum(β.^2)
+    clustering1agree = sum(α.^2)
+    clustering2agree = sum(β.^2)
 
     f(x) = x*(1-x)
-    z1disagree = sum(f.(α))
-    z2disagree = sum(f.(β))
+    clustering1disagree = sum(f.(α))
+    clustering2disagree = sum(f.(β))
     
-    return z1agree*z2agree + z1disagree * z2disagree
+    return clustering1agree*clustering2agree + clustering1disagree * clustering2disagree
 end
 
-function fitOneSided(z1::AbstractMatrix, z2::AbstractMatrix, p::Integer, q::Integer)
-    d1 = fitDist(z1)
-    return endc(d1, z2, p, q)
+
+function fitOneSided(clustering1::AbstractMatrix, clustering2::AbstractMatrix, p::Integer, q::Integer)
+    distribution1 = fitDist(clustering1)
+    return endc(distribution1, clustering2, p, q)
 end
 
-function flatTwoSided(z1::AbstractMatrix, z2::AbstractMatrix, p::Integer, q::Integer)
-    d1 = flatDist(z1)
-    d2 = flatDist(z2)
-    return endc(d1, d2, p, q)
+
+function flatTwoSided(clustering1::AbstractMatrix, clustering2::AbstractMatrix, p::Integer, q::Integer)
+    distribution1 = flatDist(clustering1)
+    distribution2 = flatDist(clustering2)
+    return endc(distribution1, distribution2, p, q)
 end
 
-function flatOneSided(z1::AbstractMatrix, z2::AbstractMatrix, p::Integer, q::Integer)
-    d1 = flatDist(z1)
-    return endc(d1, z2, p, q)
+
+function flatOneSided(clustering1::AbstractMatrix, clustering2::AbstractMatrix, p::Integer, q::Integer)
+    distribution1 = flatDist(clustering1)
+    return endc(distribution1, clustering2, p, q)
 end 

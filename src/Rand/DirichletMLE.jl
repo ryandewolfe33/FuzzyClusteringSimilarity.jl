@@ -1,11 +1,13 @@
 using SpecialFunctions
 
+
 function mlePrecisionFixedPoint(points::Matrix{<:AbstractFloat}, tol::AbstractFloat=1e-10, maxIter::Int=convert(Int, 1e5))
     K = size(points, 1)
     centre = 1/K
     m = fill(centre, K)
     return mlePrecisionFixedPoint(points, m, tol, maxIter)
 end
+
 
 function mlePrecisionFixedPoint(points::Matrix{<:AbstractFloat}, m::AbstractVector, tol::AbstractFloat=1e-10, maxIter::Int=convert(Int, 1e5))
     K = size(points, 1)

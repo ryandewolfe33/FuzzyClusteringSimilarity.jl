@@ -4,20 +4,19 @@ function andc(z1::AbstractMatrix, z2::AbstractMatrix, model::String; oneSided::B
     z2 = massageMatrix(z2)
 
     #Make ANDC
-    e = endc(z1, z2, model, oneSided=oneSided, p=p, q=q)
-    n = ndc(z1, z2, p=p, q=q)
-    b = 1 - e
-    t = n - e
-    return t/b
+    expected = endc(z1, z2, model, oneSided=oneSided, p=p, q=q)
+    observed = ndc(z1, z2, p=p, q=q)
+    return (observed - expected) / (1 - expected)
 end
+
 
 function ndc(z1::AbstractMatrix, z2::AbstractMatrix; p::Integer=1, q::Integer=1)
     z1Agreements = makeAgreements(z1, q)
     z2Agreements = makeAgreements(z2, q)
-
     disc = discordance.(z1Agreements, z2Agreements, p)
     return 1 - mean(disc)
 end
+
 
 function endc(z1::AbstractMatrix, z2::AbstractMatrix, model::String; oneSided=false, p::Integer=1, q::Integer=1)
     # Permutation Model is the same for one and two sided
