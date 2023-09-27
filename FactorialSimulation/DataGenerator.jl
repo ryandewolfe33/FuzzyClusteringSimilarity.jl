@@ -123,7 +123,7 @@ function runSimulation()
             next!(p)
         end
 
-        filename = "FactorialSimulationTwoSided" * runNo * ".jld"
+        filename = "/FactorialSimulation/Data/FactorialSimulationTwoSided" * runNo * ".jld"
         save(filename, "results", results)
         finish!(p)
     end
@@ -229,7 +229,7 @@ function runSimulation()
             next!(p)
         end
 
-        filename = "FactorialSimulationOneSided" * runNo * ".jld"
+        filename = "/FactorialSimulation/Data/FactorialSimulationOneSided" * runNo * ".jld"
         save(filename, "results", results)
         finish!(p)
     end
