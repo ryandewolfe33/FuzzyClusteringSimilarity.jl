@@ -20,7 +20,7 @@ function runSimulation()
             precisionIndex in axes(precisions, 1),
             randomizeIndex in axes(randomizeRates, 1)
             ])
-
+    #=
     # Two Sided Comparisons
     results = Array{Float64}(undef, (
         4,
@@ -108,8 +108,17 @@ function runSimulation()
 
             indexesToRandomize = sample(axes(clustering1, 2), nToRandomize, replace=false)
             for i in indexesToRandomize
-                clustering1[:, i] = rand(randomMembershipDist)
-                clustering2[:, i] = rand(randomMembershipDist)
+                randMembership = rand(randomMembershipDist)
+                while !all(isfinite, randMembership)
+                    randMembership = rand(randomMembershipDist)
+                end
+                clustering1[:, i] = randMembership
+                
+                randMembership = rand(randomMembershipDist)
+                while !all(isfinite, randMembership)
+                    randMembership = rand(randomMembershipDist)
+                end
+                clustering2[:, i] = randMembership
             end
 
             # Calculate ANDCs
@@ -127,7 +136,7 @@ function runSimulation()
         save(filename, "results", results)
         finish!(p)
     end
-
+    =#
 
     # One Sided Comparisons
     results = Array{Float64}(undef, (
@@ -216,7 +225,11 @@ function runSimulation()
 
             indexesToRandomize = sample(axes(clustering1, 2), nToRandomize, replace=false)
             for i in indexesToRandomize
-                clustering1[:, i] = rand(randomMembershipDist)
+                randMembership = rand(randomMembershipDist)
+                while !all(isfinite, randMembership)
+                    randMembership = rand(randomMembershipDist)
+                end
+                clustering1[:, i] = randMembership
             end
 
             # Calculate ANDCs

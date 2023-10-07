@@ -141,7 +141,7 @@ function fitDist(z::AbstractMatrix{<:AbstractFloat})
     try
         α = mleFixedPoint(z)[1]
         # α is close to hard, or Nan (caused by close to hard mle)
-        if all(αi < 1e-4 for αi in α) || !isfinite.(α)
+        if all(αi < 1e-4 for αi in α) || !all(isfinite, α)
             return fitHard(z)
         end
         return Dirichlet(α)
@@ -158,6 +158,10 @@ end
 
 function fitHard(z::AbstractMatrix{<:AbstractFloat})
         p = vec(sum(z, dims=2))/size(z, 2)
+        if !all(isfinite, p)
+            print(z)
+            print(p)
+        end
         return Multinomial(1, p)
 end
 
@@ -170,7 +174,7 @@ end
 function symDist(z::AbstractMatrix{<:AbstractFloat})
     precision = mlePrecisionFixedPoint(z)[1]
     numDimensions = size(z, 1)
-    if precision / numDimensions < 1e-4 || !isfinite.(precision)
+    if precision / numDimensions < 1e-4 || !all(isfinite, precision)
         return Multinomial(1, size(z, 1))
     end
     return Dirichlet(numDimensions, precision/numDimensions)
