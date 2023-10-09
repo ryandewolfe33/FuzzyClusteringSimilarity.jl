@@ -5,12 +5,12 @@ using ProgressMeter
 using Base.Threads
 
 function runSimulation()
-    clusterNumbers = [2, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-    observationNumbers = [100, 500, 1000, 2500, 5000, 7500, 10000]
+    clusterNumbers = [2,4,8,16,32,64,128]
+    observationNumbers = [128, 256, 512, 1024, 2048, 4096, 8192]
     clusterSizeImbalances = [0.8, 0.6, 0.4, 0.2]
     precisions = [0, 0.01, 0.1,  1, 1.5]
     randomizeRates = [0.2, 0.4, 0.6, 0.8, 1.0]
-    nruns = 10
+    nruns = 5
 
     settingsList = vec([
         [clusterNumIndex, observationNumIndex, clusterSizeImbalanceIndex, precisionIndex, randomizeIndex]
@@ -113,7 +113,7 @@ function runSimulation()
                     randMembership = rand(randomMembershipDist)
                 end
                 clustering1[:, i] = randMembership
-                
+
                 randMembership = rand(randomMembershipDist)
                 while !all(isfinite, randMembership)
                     randMembership = rand(randomMembershipDist)
@@ -132,7 +132,7 @@ function runSimulation()
             next!(p)
         end
 
-        filename = "/FactorialSimulation/Data/FactorialSimulationTwoSided" * runNo * ".jld"
+        filename = "/FactorialSimulation/Data/FactorialSimulationTwoSided" * string(runNo) * ".jld"
         save(filename, "results", results)
         finish!(p)
     end
@@ -242,7 +242,7 @@ function runSimulation()
             next!(p)
         end
 
-        filename = "/FactorialSimulation/Data/FactorialSimulationOneSided" * runNo * ".jld"
+        filename = "FactorialSimulation/Data/FactorialSimulationOneSided" * string(runNo) * ".jld"
         save(filename, "results", results)
         finish!(p)
     end
