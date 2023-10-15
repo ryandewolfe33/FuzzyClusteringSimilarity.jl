@@ -110,17 +110,17 @@ end
 
 
 function endc(d::Multinomial, z2::AbstractMatrix{<:AbstractFloat}, p::Integer, q::Integer)
-    disagreements = makeApproxDisagreements(z2, q)
+    disagreements = approxDisagreementDistribution(z2, q)
     probabilityDistAgrees = sum( (d.p).^2 )
     
     totalDiscordance = 0.0
     for i in axes(disagreements,1)
         #dist agree
-        totalDiscordance += discordance(0, a[i], p) * probabilityDistAgrees
+        totalDiscordance += discordance(0, disagreements[i], p) * probabilityDistAgrees
         #dist disagree
-        totalDiscordance += discordance(1, a[i], p) * (1-probabilityDistAgrees)
+        totalDiscordance += discordance(1, disagreements[i], p) * (1-probabilityDistAgrees)
     end
-    return 1 - totalDiscordance / length(a)
+    return 1 - totalDiscordance / length(disagreements)
 end
 
 
@@ -183,13 +183,8 @@ end
 
 function flatDist(z::AbstractMatrix{<:Real})
     return Dirichlet(ones(size(z, 1)))
-end
-  
+end  
 
-#function logβ(α::T where T<:AbstractFloat, dim::Int64)
-#    return Dirichlet(dim, α).lmnB
-#end
-  
 
 function makeDisagreements(z::AbstractMatrix, q::Integer=1)
     npoints = size(z, 2)
