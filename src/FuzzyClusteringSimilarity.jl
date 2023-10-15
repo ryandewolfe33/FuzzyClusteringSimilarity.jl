@@ -8,7 +8,6 @@ include("Rand/DirichletMLE.jl")
 export andc
 export ndc
 export endc
-export discordance
 export massageMatrix
 
 
