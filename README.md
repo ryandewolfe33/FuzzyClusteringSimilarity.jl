@@ -8,7 +8,26 @@ Code for Dirichlet Random Models for Fuzzy Rand Adjustment
 ## Summary
 Adjusted Normalized Degree of Concordance (ANDC) is a similarity measure between two fuzzy (or hard) clusterings. The value is in `(-inf, 1]`, with 1 representing identical clusterings, and 0 representing the clusterings have the same agreement as "random" clusterings. The selection of "random" is required by the user, and four models are provided.
 
-## Functions
+## Getting Started
+
+This package is available from the julia general repository.
+
+```julia
+using Pkg
+Pkg.add("FuzzyCLusteringSimilarity")
+```
+
+Then import the module.
+```julia
+using FuzzyClusteringSimilarity
+```
+
+You can run the unit tests to insure the package was properly installed.
+```julia
+Pkg.test("FuzzyClusteringSimilarity")
+```
+
+# Documentation
 
 ```julia
 andc(matrix1::AbstractMatrix, matrix2::AbstractMatrix, model::String, oneSided=True, p::Int=1, q::Int=1)
