@@ -158,10 +158,6 @@ end
 
 function fitHard(z::AbstractMatrix{<:AbstractFloat})
         p = vec(sum(z, dims=2))/size(z, 2)
-        if !all(isfinite, p)
-            print(z)
-            print(p)
-        end
         return Multinomial(1, p)
 end
 
