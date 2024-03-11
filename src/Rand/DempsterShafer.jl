@@ -13,7 +13,11 @@ m_ij(Θ) = 1 - m_ij(s) - m_ij(¬s) = 0
 Define similarity indices as agreement concordant rand like extensions
 ρ_s(M, M') = 1 - E[δ(m_ij, m'_ij)] (reformulate equation 14)
 where δ is a distance (discordance) between m_ij, m'_ij
+=#
 
+using LinearAlgebra
+
+#=
 Jousselme's Distance δJ 
 See equations 15 in the paper
 Define the Jaccard Matrix
@@ -34,8 +38,22 @@ Then
 
 So agreement α(i,j) = u_i ⋅ u_j
 concordance conc(i,j) = 1 - 2(α^A(i,j) - α^B(i,j))^2
+=#
+function jousselme_agreement(ui::Vector{<:Real}, uj::Vector{<:Real}) <: Real
+    return dot(ui, uj)
+end
 
+function jousselme_discordance(agreement1<:Real, agreement2<:Real) <: Real
+    return 2 * (agreement1 - agreement2)^2
+end
 
+function jousselme_discordance(ui::Vector{<:Real}, uj::Vector{<:Real}, vi::Vector{<:Real}, vj::Vector{<:Real}) <: Real
+    agreement1 = jousseleme_agreement(ui, uj)
+    agreement2 = jousseleme_agreement(vi, vj)
+    return jousselme_discordance(agreement1, agreement2)
+end
+
+#=
 Belief Distance δB
 See equation 17
 
