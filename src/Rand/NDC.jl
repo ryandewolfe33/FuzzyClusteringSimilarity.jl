@@ -1,4 +1,7 @@
-# Based on the paper "Comparing Fuzzy Partitions: A Generalization of the Rand Index and Related Measuers"
+#= Based on the paper "Comparing Fuzzy Partitions: A Generalization of the Rand Index and Related Measuers"
+α = 1 - |ui - uj|
+disc = |α^U(i,j) - α^V(i,j)|
+=#
 
 using LinearAlgebra
 

@@ -50,6 +50,9 @@ massageMatrix(matrix::AbstractMatrix)
 ```
 Massage a matrix to enable julia's multiple dispatch. Matrix is formated with points as columns and clusters and rows. If matrix is a hard clustering the type is converted to Bool.
 
+## Internal Style and Notation
+When only one clustering is relevant, variables for membership vectors of distinct points will be labeled ui, uj. When two clusterings are relevant, they will be labeled, ui, uj and vi, vj corresponding to clusterings U and V.
+
 # References
 
 E. Hullermeier, M. Rifqi, S. Henzgen and R. Senge, "Comparing Fuzzy Partitions: A Generalization of the Rand Index and Related Measures," in IEEE Transactions on Fuzzy Systems, vol. 20, no. 3, pp. 546-556, June 2012. https://doi.org/10.1109/TFUZZ.2011.2179303
