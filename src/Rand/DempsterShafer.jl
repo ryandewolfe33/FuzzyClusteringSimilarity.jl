@@ -31,20 +31,20 @@ J = [[1, 0, 0, 0],
 So for clusterings A, B; vectors looks like [0, α^A_ij, 1-α^A_ij, 0] and [0, α^B_ij, 1-α^B_ij, 0] where agreement function α is the dot product
 
 Then 
-δ_J(vectors) = [0, α^A_ij - α^B_ij, α^B_ij - α^A_ij, 0]^T * J * [0, α^A_ij - α^B_ij, α^B_ij - α^A_ij, 0]
-             = [0, α^A_ij - α^B_ij, α^B_ij - α^A_ij, 0]^T * [0, α^A_ij - α^b_ij, α^B_ij - α^A_ij, 0]
-             = (α^A_ij - α^B_ij)^2 + (α^B_ij - α^A_ij)^2
-             = 2(α^A - ij - α^B_ij)^2
+2 * δ_J(vectors) = [0, α^A_ij - α^B_ij, α^B_ij - α^A_ij, 0]^T * J * [0, α^A_ij - α^B_ij, α^B_ij - α^A_ij, 0]
+                 = [0, α^A_ij - α^B_ij, α^B_ij - α^A_ij, 0]^T * [0, α^A_ij - α^b_ij, α^B_ij - α^A_ij, 0]
+                 = (α^A_ij - α^B_ij)^2 + (α^B_ij - α^A_ij)^2
+                 = 2(α^A - ij - α^B_ij)^2
 
 So agreement α(i,j) = u_i ⋅ u_j
-concordance conc(i,j) = 1 - 2(α^A(i,j) - α^B(i,j))^2
+concordance conc(i,j) = 1 - (α^A(i,j) - α^B(i,j))^2
 =#
 function jousselme_agreement(ui::Vector{<:Real}, uj::Vector{<:Real}) <: Real
     return dot(ui, uj)
 end
 
 function jousselme_discordance(agreement1<:Real, agreement2<:Real) <: Real
-    return 2 * (agreement1 - agreement2)^2
+    return (agreement1 - agreement2)^2
 end
 
 function jousselme_discordance(ui::Vector{<:Real}, uj::Vector{<:Real}, vi::Vector{<:Real}, vj::Vector{<:Real}) <: Real
