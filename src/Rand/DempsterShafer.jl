@@ -64,8 +64,23 @@ See equation 17
 So agreement and concordance are given by 
 α(i,j) = u_i ⋅ u_j
 conc(i,j) = |α^A(i,j) - α^B(i,j)|
+=#
 
+function belief_agreement(ui::Vector{<:Real}, uj::Vector{<:Real}) <: Real
+    return dot(ui, uj)
+end
 
+function belief_discordance(agreement1<:Real, agreement2<:Real) <: Real
+    return abs(agreement1 - agreement2)
+end
+
+function belief_discordance(ui::Vector{<:Real}, uj::Vector{<:Real}, vi::Vector{<:Real}, vj::Vector{<:Real}) <: Real
+    agreement1 = belief_agreement(ui, uj)
+    agreement2 = belief_agreement(vi, vj)
+    return belief_discordance(agreement1, agreement2)
+end
+
+#=
 Degree of Conflict
 See equation 18-23
 δκ = ∑A ∩ B = ∅ m_ij(A)m'_ij(B)
