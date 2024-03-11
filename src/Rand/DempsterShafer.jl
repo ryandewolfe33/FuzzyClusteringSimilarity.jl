@@ -36,8 +36,9 @@ Then
                  = (α^A_ij - α^B_ij)^2 + (α^B_ij - α^A_ij)^2
                  = 2(α^A - ij - α^B_ij)^2
 
-So agreement α(i,j) = u_i ⋅ u_j
-concordance conc(i,j) = 1 - (α^A(i,j) - α^B(i,j))^2
+So writing as agreement and discordance
+α(i,j) = u_i ⋅ u_j
+disc(i,j) = (α^A(i,j) - α^B(i,j))^2
 =#
 function jousselme_agreement(ui::Vector{<:Real}, uj::Vector{<:Real}) <: Real
     return dot(ui, uj)
@@ -61,9 +62,9 @@ See equation 17
             = 1/2( |u_i ⋅ u_j - u'_i ⋅ u'_j| + |1 - u_i ⋅ u_j - 1 + u'_i ⋅ u'_j|)
             = |u_i ⋅ u_j - u'_i ⋅ u'_j|
 
-So agreement and concordance are given by 
+So agreement and discordance are given by 
 α(i,j) = u_i ⋅ u_j
-conc(i,j) = |α^A(i,j) - α^B(i,j)|
+disc(i,j) = |α^A(i,j) - α^B(i,j)|
 =#
 
 function belief_agreement(ui::Vector{<:Real}, uj::Vector{<:Real}) <: Real
@@ -83,8 +84,37 @@ end
 #=
 Degree of Conflict
 See equation 18-23
-δκ = ∑A ∩ B = ∅ m_ij(A)m'_ij(B)
-   = ∑k ∑m ≠ k u_ik*u_jk * u'im * u'_jm
+We rename κ to δ_κ since it is acting as our distance
 
-Feels like summing some matrix above the diagonal. Maybe browers or andrews?
+From equation 19
+C = [[1, 1, 1, 1],
+     [1, 0, 1, 0],
+     [1, 1, 0, 0],
+     [1, 0, 0, 0]]
+
+δ_κ(m_ij, m'_ij) = m_ij^T * C * m'_ij
+
+But since we are restricting to fuzzy, m_ij = [0, ui ⋅ uj, 1 - ui ⋅ uj, 0]
+δ_κ(m_ij, m'_ij) = [0, ui ⋅ uj, 1 - ui ⋅ uj, 0]^T ⋅ C ⋅ [0, vi ⋅ vj, 1 - vi ⋅ vj, 0]
+               = [0, ui ⋅ uj, 1 - ui ⋅ uj, 0] ⋅ [1, 1 - vi ⋅ vj, vi ⋅ vj, 0]
+               = ui ⋅ uj (1 - vi ⋅ vj) + vi ⋅ vj (1 - ui ⋅ uj)
+               = ui ⋅ uj + vi ⋅ vj - 2 * ui⋅uj * vi ⋅ vj
+
+So writing as agreement and discordance
+α(i,j) = ui ⋅ uj
+disc(i,j) = α^A(i,j) + α^B(i,j) - 2 * α^A(i,j) * α^B(i,j)
 =#
+
+function consistency_agreement(ui::Vector{<:Real}, uj::Vector{<:Real}) <: Real
+    return dot(ui, uj)
+end
+
+function consistency_discordance(agreement1<:Real, agreement2<:Real) <: Real
+    return agreement1 + agreement2 - 2 * agreement1 * agreement2
+end
+
+function consistency_discordance(ui::Vector{<:Real}, uj::Vector{<:Real}, vi::Vector{<:Real}, vj::Vector{<:Real}) <: Real
+    agreement1 = consistency_agreement(ui, uj)
+    agreement2 = consistency_agreement(vi, vj)
+    return consistency_discordance(agreement1, agreement2)
+end
