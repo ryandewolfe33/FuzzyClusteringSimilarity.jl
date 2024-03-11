@@ -28,17 +28,18 @@ J = [[1, 0, 0, 0],
 
 δJ = (0.5 * (m_ij - m'ij)^T * J * (m_ij - m'_ij))^(1/2)
 
-So for clusterings A, B; vectors looks like [0, α^A_ij, 1-α^A_ij, 0] and [0, α^B_ij, 1-α^B_ij, 0] where agreement function α is the dot product
+So for clusterings U, V; vectors looks like [0, ui⋅uj, 1-ui⋅uj, 0] and [0, vi⋅vj, 1-vi⋅vj, 0]
+where agreement function α is the dot product
 
 Then 
-2 * δ_J(vectors) = [0, α^A_ij - α^B_ij, α^B_ij - α^A_ij, 0]^T * J * [0, α^A_ij - α^B_ij, α^B_ij - α^A_ij, 0]
-                 = [0, α^A_ij - α^B_ij, α^B_ij - α^A_ij, 0]^T * [0, α^A_ij - α^b_ij, α^B_ij - α^A_ij, 0]
-                 = (α^A_ij - α^B_ij)^2 + (α^B_ij - α^A_ij)^2
-                 = 2(α^A - ij - α^B_ij)^2
+2 * δ_J(vectors) = [0, ui⋅uj - vi⋅vj, vi⋅vj - ui⋅uj, 0]^T * J * [0, ui⋅uj - vi⋅vj, vi⋅vj - ui⋅uj, 0]
+                 = [0, ui⋅uj - vi⋅vj, vi⋅vj - ui⋅uj, 0]^T * [0, ui⋅uj - vi⋅vj, vi⋅vj - ui⋅uj, 0]
+                 = (ui⋅uj - vi⋅vj)^2 + (vi⋅vj - ui⋅uj)^2
+                 = 2(ui⋅uj - vi⋅vj)^2
 
 So writing as agreement and discordance
-α(i,j) = u_i ⋅ u_j
-disc(i,j) = (α^A(i,j) - α^B(i,j))^2
+α(i,j) = ui⋅uj
+disc(i,j) = (α^U(i,j) - α^V(i,j))^2
 =#
 function jousselme_agreement(ui::Vector{<:Real}, uj::Vector{<:Real}) <: Real
     return dot(ui, uj)
@@ -58,13 +59,13 @@ end
 Belief Distance δB
 See equation 17
 
-δB(vectors) = 1/2( |m(s) - m'(s)| + |m(¬s) - m'(¬s)| + |m(∅) - m'(∅)|
-            = 1/2( |u_i ⋅ u_j - u'_i ⋅ u'_j| + |1 - u_i ⋅ u_j - 1 + u'_i ⋅ u'_j|)
-            = |u_i ⋅ u_j - u'_i ⋅ u'_j|
+δB(vectors) = 1/2 * ( |m(s) - m'(s)| + |m(¬s) - m'(¬s)| + |m(∅) - m'(∅)| )
+            = 1/2 * ( |ui⋅uj - vi⋅vj| + |1 - ui⋅uj - 1 + vi⋅vj| )
+            = |ui⋅uj - vi⋅vj|
 
 So agreement and discordance are given by 
-α(i,j) = u_i ⋅ u_j
-disc(i,j) = |α^A(i,j) - α^B(i,j)|
+α(i,j) = ui⋅uj
+disc(i,j) = |α^U(i,j) - α^V(i,j)|
 =#
 
 function belief_agreement(ui::Vector{<:Real}, uj::Vector{<:Real}) <: Real
@@ -94,15 +95,15 @@ C = [[1, 1, 1, 1],
 
 δ_κ(m_ij, m'_ij) = m_ij^T * C * m'_ij
 
-But since we are restricting to fuzzy, m_ij = [0, ui ⋅ uj, 1 - ui ⋅ uj, 0]
-δ_κ(m_ij, m'_ij) = [0, ui ⋅ uj, 1 - ui ⋅ uj, 0]^T ⋅ C ⋅ [0, vi ⋅ vj, 1 - vi ⋅ vj, 0]
-               = [0, ui ⋅ uj, 1 - ui ⋅ uj, 0] ⋅ [1, 1 - vi ⋅ vj, vi ⋅ vj, 0]
-               = ui ⋅ uj (1 - vi ⋅ vj) + vi ⋅ vj (1 - ui ⋅ uj)
-               = ui ⋅ uj + vi ⋅ vj - 2 * ui⋅uj * vi ⋅ vj
+But since we are restricting to fuzzy, m_ij = [0, ui⋅uj, 1 - ui⋅uj, 0]
+δ_κ(m_ij, m'_ij) = [0, ui⋅uj, 1 - ui⋅uj, 0]^T * C * [0, vi⋅vj, 1 - vi⋅vj, 0]
+               = [0, ui⋅uj, 1 - ui⋅uj, 0]^T * [1, 1 - vi⋅vj, vi⋅vj, 0]
+               = ui⋅uj * (1 - vi⋅vj) + vi⋅vj * (1 - ui⋅uj)
+               = ui⋅uj + vi⋅vj - 2 * ui⋅uj * vi⋅vj
 
 So writing as agreement and discordance
-α(i,j) = ui ⋅ uj
-disc(i,j) = α^A(i,j) + α^B(i,j) - 2 * α^A(i,j) * α^B(i,j)
+α(i,j) = ui⋅uj
+disc(i,j) = α^U(i,j) + α^V(i,j) - 2 * α^U(i,j) * α^V(i,j)
 =#
 
 function consistency_agreement(ui::Vector{<:Real}, uj::Vector{<:Real}) <: Real
