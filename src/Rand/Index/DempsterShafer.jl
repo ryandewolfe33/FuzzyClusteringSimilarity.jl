@@ -14,9 +14,7 @@ Define similarity indices as agreement concordant rand like extensions
 ρ_s(M, M') = 1 - E[δ(m_ij, m'_ij)] (reformulate equation 14)
 where δ is a distance (discordance) between m_ij, m'_ij
 =#
-
 using LinearAlgebra
-
 #=
 Jousselme's Distance δJ 
 See equations 15 in the paper
@@ -41,18 +39,14 @@ So writing as agreement and discordance
 α(i,j) = ui⋅uj
 disc(i,j) = (α^U(i,j) - α^V(i,j))^2
 =#
-function jousselme_agreement(ui::Vector{<:Real}, uj::Vector{<:Real}) <: Real
+struct Jousseleme<:AbstractIndex end
+
+function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::Jousseleme) <: Real
     return dot(ui, uj)
 end
 
-function jousselme_discordance(agreement1<:Real, agreement2<:Real) <: Real
+function discordance(agreement1<:Real, agreement2<:Real, index::Jousseleme) <: Real
     return (agreement1 - agreement2)^2
-end
-
-function jousselme_discordance(ui::Vector{<:Real}, uj::Vector{<:Real}, vi::Vector{<:Real}, vj::Vector{<:Real}) <: Real
-    agreement1 = jousseleme_agreement(ui, uj)
-    agreement2 = jousseleme_agreement(vi, vj)
-    return jousselme_discordance(agreement1, agreement2)
 end
 
 #=
@@ -67,19 +61,14 @@ So agreement and discordance are given by
 α(i,j) = ui⋅uj
 disc(i,j) = |α^U(i,j) - α^V(i,j)|
 =#
+struct Belief<:AbstractIndex end
 
-function belief_agreement(ui::Vector{<:Real}, uj::Vector{<:Real}) <: Real
+function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::Belief) <: Real
     return dot(ui, uj)
 end
 
-function belief_discordance(agreement1<:Real, agreement2<:Real) <: Real
+function discordance(agreement1<:Real, agreement2<:Real, index::Belief) <: Real
     return abs(agreement1 - agreement2)
-end
-
-function belief_discordance(ui::Vector{<:Real}, uj::Vector{<:Real}, vi::Vector{<:Real}, vj::Vector{<:Real}) <: Real
-    agreement1 = belief_agreement(ui, uj)
-    agreement2 = belief_agreement(vi, vj)
-    return belief_discordance(agreement1, agreement2)
 end
 
 #=
@@ -105,17 +94,12 @@ So writing as agreement and discordance
 α(i,j) = ui⋅uj
 disc(i,j) = α^U(i,j) + α^V(i,j) - 2 * α^U(i,j) * α^V(i,j)
 =#
+struct Consistency<:AbstractIndex end
 
-function consistency_agreement(ui::Vector{<:Real}, uj::Vector{<:Real}) <: Real
+function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::Consistency) <: Real
     return dot(ui, uj)
 end
 
-function consistency_discordance(agreement1<:Real, agreement2<:Real) <: Real
+function discordance(agreement1<:Real, agreement2<:Real, index::Consistency) <: Real
     return agreement1 + agreement2 - 2 * agreement1 * agreement2
-end
-
-function consistency_discordance(ui::Vector{<:Real}, uj::Vector{<:Real}, vi::Vector{<:Real}, vj::Vector{<:Real}) <: Real
-    agreement1 = consistency_agreement(ui, uj)
-    agreement2 = consistency_agreement(vi, vj)
-    return consistency_discordance(agreement1, agreement2)
 end
