@@ -2,12 +2,14 @@ struct FlatDirichlet<:AbstractAgreementConcordance end
 struct SymDirichlet<:AbstractAgreementConcordance end
 struct FitDirichlet<:AbstractAgreementConcordance end
 
-function expectation(
+
+function expectedindex(
     z1::AbstractMatrix,
     z2::AbstractMatrix,
     model<:AbstractAgreementConcordance,
     index<:AbstractIndex;
-    oneSided=True
+    oneSided=True,
+    nsamples<:Int=1000000
     ) <:Real
 
     if oneSided
@@ -20,14 +22,14 @@ function expectation(
     end
 end
 
-function expectation(dist1::Distribution, dist2::Distribution, index<:AbstractIndex)
-    nsamples = 1000000
+
+function expectedindex(dist1::Distribution, dist2::Distribution, index<:AbstractIndex, nsamples<:Int=1000000)
     totaldiscordance = 0.0
-    
     for _ in 1:nsamples
+        # TODO better method for checking isfinite (nans and infs both appear)
         x1 = rand(dist1)
         while !all(isfinite, x1)
-            x1 = rand(d1)
+            x1 = rand(dist1)
         end
         x2 = rand(dist1)
         while !all(isfinite, x2)
@@ -48,24 +50,72 @@ function expectation(dist1::Distribution, dist2::Distribution, index<:AbstractIn
     return 1 - totaldiscordance/nsamples
 end
 
-function expectation(z1::AbstractMatrix{<:AbstractFloat}, dist::Distribution, index<:AbstractIndex)
-    nsamples = 100000
-    z2Disagreements = approxDisagreementDistribution(z2, q)
-    totalDiscordance = 0.0
-    for _ in 1:num
-        x1 = rand(d)
-        while !all(isfinite, x1)
-            x1 = rand(d)
-        end
-        x2 = rand(d)
-        while !all(isfinite, x2)
-            x2 = rand(d)
-        end
-        xDisagreement = disagreement(x1, x2, q)
-        for j in axes(z2Disagreements, 1)
-            yDisagreement = j/length(z2Disagreements)
-            totalDiscordance += discordance(xDisagreement, yDisagreement, p) * z2Disagreements[j]
-        end
+
+function expectedindex(z1::AbstractMatrix{<:AbstractFloat}, dist::Distribution, index<:AbstractIndex, nsamples<:Int=1000000, exact::Bool=false)
+    if exact
+        return exactexpectedindex(z1::AbstractMatrix{<:AbstractFloat}, dist::Distribution, index<:AbstractIndex, nsamples<:Int=1000000)
+    else
+        return approxexpectedindex(z1::AbstractMatrix{<:AbstractFloat}, dist::Distribution, index<:AbstractIndex, nsamples<:Int=1000000)
     end
-    return 1 - totalDiscordance / num
+end
+
+
+function exactexpectedindex(z1::AbstractMatrix{<:AbstractFloat}, dist::Distribution, index<:AbstractIndex, nsamples<:Int=1000000)
+    z1agreements = agreement(z1)
+    totaldiscordance = 0.0
+    for _ in 1:nsamples
+        # TODO better method for checking isfinite (nans and infs both appear)
+        x1 = rand(dist)
+        while !all(isfinite, x1)
+            x1 = rand(dist)
+        end
+        x2 = rand(dist)
+        while !all(isfinite, x2)
+            x2 = rand(dist)
+        end
+        xagreement = agreement(x1, x2, index)
+        
+        #TODO make more clear; new function?
+        currenttotaldiscordance = 0.0
+        for z1agreement in z1agreements
+            currenttotaldiscordance += discordance(z1agreement, xagreement, index)
+        end
+        totaldiscordance += currenttotaldiscordance/length(z1agreements)
+    end
+    return 1 - totaldiscordance/nsamples
+end
+
+
+function approxexpectedindex(z1::AbstractMatrix{<:AbstractFloat}, dist::Distribution, index<:AbstractIndex, nsamples<:Int=1000000, accuracy<:Real=0.001)
+    # TODO handle accuracy input, currently hardcoded to 0.001
+    nbins = 1000
+    z1agreements = agreement(z1, index)
+    weights = zeros(Int, nbins + 1)
+    for i in z1agreements
+        bin = floor(Int, i * accuracy)
+        weights[bin] += 1
+    end
+
+    totaldiscordance = 0.0
+    for _ in 1:nsamples
+        x1 = rand(dist)
+        while !all(isfinite, x1)
+            x1 = rand(dist)
+        end
+        x2 = rand(dist)
+        while !all(isfinite, x2)
+            x2 = rand(dist)
+        end
+        xagreement = agreement(x1, x2, index)
+
+        # TODO clean up or comment that agreement is binnum
+        currenttotaldiscordance = 0.0
+        for binnum in 1:length(weights)
+            z1agreement = (binnum - 1) / nbins
+            currenttotaldiscordance += discordance(z1agreement, xagreement, index)*weights(binnum)
+        end
+        totaldiscordance += currenttotaldiscordance / length(z1agreements)
+    end
+
+    return 1 - totaldiscordance / nsamples
 end
