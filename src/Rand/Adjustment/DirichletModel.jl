@@ -1,5 +1,5 @@
 struct FlatDirichlet<:AbstractAgreementConcordance end
-struct SymDirichlet<:AbstractAgreementConcordance end
+struct SymmetricDirichlet<:AbstractAgreementConcordance end
 struct FitDirichlet<:AbstractAgreementConcordance end
 
 
@@ -10,7 +10,7 @@ function expectedindex(
     index<:AbstractIndex;
     oneSided=True;
     nsamples<:Int=1000000
-    ) <:Real
+    )<:Real
 
     if oneSided
         dist = fitdist(z2, model)
@@ -23,7 +23,7 @@ function expectedindex(
 end
 
 
-function expectedindex(dist1::Distribution, dist2::Distribution, index<:AbstractIndex; nsamples<:Int=1000000)
+function expectedindex(dist1::Distribution, dist2::Distribution, index<:AbstractIndex; nsamples<:Int=1000000)<:Real
     totaldiscordance = 0.0
     for _ in 1:nsamples
         # TODO better method for checking isfinite (nans and infs both appear)
@@ -52,7 +52,7 @@ function expectedindex(dist1::Distribution, dist2::Distribution, index<:Abstract
 end
 
 
-function expectedindex(z1::AbstractMatrix{<:AbstractFloat}, dist::Distribution, index<:AbstractIndex; nsamples<:Int=1000000, exact::Bool=false)
+function expectedindex(z1::AbstractMatrix{<:Real}, dist::Distribution, index<:AbstractIndex; nsamples<:Int=1000000, exact::Bool=false)<:Real
     if exact
         return exactexpectedindex(z1, dist, index, nsamples=nsamples)
     else
@@ -61,7 +61,7 @@ function expectedindex(z1::AbstractMatrix{<:AbstractFloat}, dist::Distribution, 
 end
 
 
-function exactexpectedindex(z1::AbstractMatrix{<:AbstractFloat}, dist::Distribution, index<:AbstractIndex; nsamples<:Int=1000000)
+function exactexpectedindex(z1::AbstractMatrix{<:Real}, dist::Distribution, index<:AbstractIndex; nsamples<:Int=1000000)
     z1agreements = agreement(z1)
     totaldiscordance = 0.0
     for _ in 1:nsamples
@@ -87,7 +87,7 @@ function exactexpectedindex(z1::AbstractMatrix{<:AbstractFloat}, dist::Distribut
 end
 
 
-function approxexpectedindex(z1::AbstractMatrix{<:AbstractFloat}, dist::Distribution, index<:AbstractIndex; nsamples<:Int=1000000, accuracy<:Real=0.001)
+function approxexpectedindex(z1::AbstractMatrix{<:Real}, dist::Distribution, index<:AbstractIndex; nsamples<:Int=1000000, accuracy<:Real=0.001)
     # TODO handle accuracy input, currently hardcoded to 0.001
     nbins = 1000
     z1agreements = agreement(z1, index)
@@ -119,4 +119,47 @@ function approxexpectedindex(z1::AbstractMatrix{<:AbstractFloat}, dist::Distribu
     end
 
     return 1 - totaldiscordance / nsamples
+end
+
+
+# Fitting Dirichlet Distributions according to the different DirichletModels
+function fitdist(z::AbstractMatrix{<:Real}, model::FlatDirichlet)
+    return Dirichlet(ones(size(z, 1)))
+end
+
+
+function fitdist(z::AbstractMatrix{<:Real}, model::SymmetricDirichlet; minprecision<:Real=1e-4)
+    precision, error = mlePrecisionFixedPoint(z)
+    numDimensions = size(z, 1)
+    # If precision is too low approximate with a multinomail
+    if precision / numDimensions < minprecision || !all(isfinite, precision)
+        return Multinomial(1, size(z, 1))
+    end
+    return Dirichlet(numDimensions, precision/numDimensions)
+end
+
+
+function fitdist(z::AbstractMatrix{<:Real}, model::FitDirichlet; minprecision<:Real=1e-4)
+    try
+        α, error = mleFixedPoint(z)
+        # α is close to hard, or Nan (caused by close to hard mle) approximate with multinomail
+        # TODO could only some of α be nan
+        if all(αi < 1e-4 for αi in α) || !all(isfinite, α)
+            return fithard(z)
+        end
+        return Dirichlet(α)
+    catch e
+        # Domain Error means z is too close to hard
+        if isa(e, DomainError)
+            return fithard(z)
+        else 
+            throw(e)
+        end
+    end
+end
+
+
+function fithard(z::AbstractMatrix{<:Real})
+    p = vec(sum(z, dims=2))/size(z, 2)
+    return Multinomial(1, p)
 end
