@@ -1,27 +1,30 @@
 module FuzzyClusteringSimilarity
 
-include("Rand/ANDC.jl")
-include("Rand/PermutationModel.jl")
-include("Rand/DirichletModels.jl")
-include("Rand/DirichletMLE.jl")
+include("Rand/Index.jl")
+include("Rand/Adjustment.jl")
 
-export andc
-export ndc
-export endc
+# Indexes
+export AbstractIndex
+# From DempsterShafer
+export Jousseleme
+export Belief
+export Consistency
+# From NDC
+export NDC
+
+
+# Adjustments
+export AbstractRandAdjustment
+export AbstractAgreementConcordance
+# From DirichletModels
+export FlatDirichlet
+export SymmetricDirichlet
+export FitDirichlet
+# From Permutation
+export Permutation
+
+
+# Utils
 export massageMatrix
-
-
-function massageMatrix(z::AbstractMatrix)
-    # Make Hard (Bool values) if possible
-    try
-        z = convert(Matrix{Bool}, z)
-    catch InexactError
-    end
-    # Make matrices so that each column is a point. Assume #points > #clusters
-    if(size(z, 1) > size(z, 2))
-        z = transpose(z)
-    end
-    return copy(z)
-end
 
 end

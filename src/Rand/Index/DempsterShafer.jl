@@ -14,7 +14,7 @@ Define similarity indices as agreement concordant rand like extensions
 ρ_s(M, M') = 1 - E[δ(m_ij, m'_ij)] (reformulate equation 14)
 where δ is a distance (discordance) between m_ij, m'_ij
 =#
-using LinearAlgebra
+
 #=
 Jousselme's Distance δJ 
 See equations 15 in the paper
