@@ -87,13 +87,14 @@ function exactexpectedindex(z1::AbstractMatrix{<:Real}, dist::Distribution, inde
 end
 
 
-function approxexpectedindex(z1::AbstractMatrix{<:Real}, dist::Distribution, index<:AbstractIndex; nsamples<:Int=1000000, accuracy<:Real=0.001)
-    # TODO handle accuracy input, currently hardcoded to 0.001
-    nbins = 1000
+# Approximate the expected accuracy computation by binning the z1 agreements
+function approxexpectedindex(z1::AbstractMatrix{<:Real}, dist::Distribution, index<:AbstractIndex; nsamples<:Int=1000000, accuracy<:Real=0.0001)
+    # Create z1 agreement approximations. Index i = j means there were j agreements in the bin i*accuracy to (i+1)*accuracy
+    nbins = ceil(Int64, 1 / accuracy)
     z1agreements = agreement(z1, index)
-    weights = zeros(Int, nbins + 1)
+    weights = zeros(Int64, nbins + 1)
     for i in z1agreements
-        bin = floor(Int, i * accuracy)
+        bin = floor(Int64, i / accuracy) + 1
         weights[bin] += 1
     end
 
@@ -109,11 +110,10 @@ function approxexpectedindex(z1::AbstractMatrix{<:Real}, dist::Distribution, ind
         end
         xagreement = agreement(x1, x2, index)
 
-        # TODO clean up or comment that agreement is binnum
         currenttotaldiscordance = 0.0
-        for binnum in 1:length(weights)
-            z1agreement = (binnum - 1) / nbins
-            currenttotaldiscordance += discordance(z1agreement, xagreement, index)*weights(binnum)
+        for bin in 1:length(weights)
+            z1agreement = (bin - 1) * accuracy 
+            currenttotaldiscordance += discordance(z1agreement, xagreement, index)*weights(bin)
         end
         totaldiscordance += currenttotaldiscordance / length(z1agreements)
     end

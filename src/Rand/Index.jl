@@ -12,7 +12,7 @@ function agreement(ui, uj, index<:AbstractIndex) :: Real
 end
 
 
-# Generis Discordance function
+# Generic Discordance function
 function discordance(ui::Vector{<:Real}, uj::Vector{<:Real}, vi::Vector{<:Real}, vj::Vector{<:Real}, index<:AbstractIndex) <: Real
     agreement1 = agreement(ui, uj, index)
     agreement2 = agreement(vi, vj, index)
