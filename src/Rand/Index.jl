@@ -1,17 +1,18 @@
 abstract type AbstractIndex end
 
 
-#Generic discordance
+#Generic error functions
 function discordance(agreement1, agreement2, index<:AbstractIndex)
     throw(TypeError(discordance, "Discordance not defined for this index", AbstractIndex, type(index)))
 end
 
 
-# Generic agreement function
 function agreement(ui, uj, index<:AbstractIndex) :: Real
     throw(TypeError(agreement, "Agreement not defined for this index.", AbstractIndex, type(index)))
+end
 
 
+# Generis Discordance function
 function discordance(ui::Vector{<:Real}, uj::Vector{<:Real}, vi::Vector{<:Real}, vj::Vector{<:Real}, index<:AbstractIndex) <: Real
     agreement1 = agreement(ui, uj, index)
     agreement2 = agreement(vi, vj, index)
