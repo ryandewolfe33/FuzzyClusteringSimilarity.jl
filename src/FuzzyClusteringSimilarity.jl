@@ -1,5 +1,8 @@
 module FuzzyClusteringSimilarity
 
+using Distributions
+using SpecialFunctions
+
 include("Rand/Index.jl")
 include("Rand/Adjustment.jl")
 

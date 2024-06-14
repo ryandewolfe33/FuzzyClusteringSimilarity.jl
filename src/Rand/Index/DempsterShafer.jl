@@ -46,7 +46,7 @@ function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::Jousseleme)
     return dot(ui, uj)
 end
 
-function discordance(agreement1 <: Real, agreement2 <: Real, index::Jousseleme)
+function discordance(agreement1 :: Real, agreement2 :: Real, index::Jousseleme)
     <:Real
     return (agreement1 - agreement2)^2
 end
@@ -70,7 +70,7 @@ function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::Belief)
     return dot(ui, uj)
 end
 
-function discordance(agreement1 <: Real, agreement2 <: Real, index::Belief)
+function discordance(agreement1 :: Real, agreement2 :: Real, index::Belief)
     <:Real
     return abs(agreement1 - agreement2)
 end
@@ -105,7 +105,7 @@ function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::Consistency)
     return dot(ui, uj)
 end
 
-function discordance(agreement1 <: Real, agreement2 <: Real, index::Consistency)
+function discordance(agreement1 :: Real, agreement2 :: Real, index::Consistency)
     <:Real
     return agreement1 + agreement2 - 2 * agreement1 * agreement2
 end

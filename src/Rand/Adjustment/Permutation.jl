@@ -1,7 +1,7 @@
 struct Permutation <: AbstractRandAdjustment end
 
 function expectedindex(
-        z1::AbstractMatrix, z2::AbstractMatrix, index <: AbstractIndex, model::Permutation)
+        z1::AbstractMatrix, z2::AbstractMatrix, index::AbstractIndex, model::Permutation)
     npoints = size(z1, 2)
     n = npoints * (npoints - 1) / 2
 
@@ -42,7 +42,7 @@ function makeS(x::AbstractVector, y::AbstractVector)
 end
 
 # TODO remove, use general agreement
-function makeAgreements(z::AbstractMatrix, index <: AbstractIndex)
+function makeAgreements(z::AbstractMatrix, index::AbstractIndex)
     <:Vector{Real}
     # Make a vector of intraclustering agreements from clustering z.
     npoints = size(z, 2)

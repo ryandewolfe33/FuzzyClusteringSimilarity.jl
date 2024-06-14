@@ -5,10 +5,10 @@ struct FitDirichlet <: AbstractAgreementConcordance end
 function expectedindex(
         z1::AbstractMatrix{<:Real},
         z2::AbstractMatrix{<:Real},
-        model <: AbstractAgreementConcordance,
-        index <: AbstractIndex;
-        oneSided = True;
-        nsamples <: Int = 1000000
+        model::AbstractAgreementConcordance,
+        index::AbstractIndex;
+        oneSided::Bool = True,
+        nsamples::Int = 1000000
 )
     <:Real
 
@@ -23,7 +23,7 @@ function expectedindex(
 end
 
 function expectedindex(dist1::Distribution, dist2::Distribution,
-        index <: AbstractIndex; nsamples <: Int = 1000000)
+        index::AbstractIndex; nsamples::Int = 1000000)
     <:Real
     totaldiscordance = 0.0
     for _ in 1:nsamples
@@ -53,8 +53,8 @@ function expectedindex(dist1::Distribution, dist2::Distribution,
 end
 
 function expectedindex(
-        z1::AbstractMatrix{<:Real}, dist::Distribution, index <: AbstractIndex;
-        nsamples <: Int = 1000000, exact::Bool = false)
+        z1::AbstractMatrix{<:Real}, dist::Distribution, index::AbstractIndex;
+        nsamples::Int = 1000000, exact::Bool = false)
     <:Real
     if exact
         return exactexpectedindex(z1, dist, index, nsamples = nsamples)
@@ -64,7 +64,7 @@ function expectedindex(
 end
 
 function exactexpectedindex(z1::AbstractMatrix{<:Real}, dist::Distribution,
-        index <: AbstractIndex; nsamples <: Int = 1000000)
+        index::AbstractIndex; nsamples::Int = 1000000)
     z1agreements = agreement(z1)
     totaldiscordance = 0.0
     for _ in 1:nsamples
@@ -91,8 +91,8 @@ end
 
 # Approximate the expected accuracy computation by binning the z1 agreements
 function approxexpectedindex(
-        z1::AbstractMatrix{<:Real}, dist::Distribution, index <: AbstractIndex;
-        nsamples <: Int = 1000000, accuracy <: Real = 0.0001)
+        z1::AbstractMatrix{<:Real}, dist::Distribution, index::AbstractIndex;
+        nsamples::Int = 1000000, accuracy::Real = 0.0001)
     # Create z1 agreement approximations. Index i = j means there were j agreements in the bin i*accuracy to (i+1)*accuracy
     nbins = ceil(Int64, 1 / accuracy)
     z1agreements = agreement(z1, index)
@@ -132,7 +132,7 @@ function fitdist(z::AbstractMatrix{<:Real}, model::FlatDirichlet)
 end
 
 function fitdist(
-        z::AbstractMatrix{<:Real}, model::SymmetricDirichlet; minprecision <: Real = 1e-4)
+        z::AbstractMatrix{<:Real}, model::SymmetricDirichlet; minprecision::Real = 1e-4)
     precision, error = mlePrecisionFixedPoint(z)
     numDimensions = size(z, 1)
     # If precision is too low approximate with a multinomail
@@ -143,12 +143,12 @@ function fitdist(
 end
 
 function fitdist(
-        z::AbstractMatrix{<:Real}, model::FitDirichlet; minprecision <: Real = 1e-4)
+        z::AbstractMatrix{<:Real}, model::FitDirichlet; minprecision::Real = 1e-4)
     try
         α, error = mleFixedPoint(z)
         # α is close to hard, or Nan (caused by close to hard mle) approximate with multinomail
         # TODO could only some of α be nan
-        if all(αi < 1e-4 for αi in α) || !all(isfinite, α)
+        if all(αi < minprecision for αi in α) || !all(isfinite, α)
             return fithard(z)
         end
         return Dirichlet(α)
@@ -208,7 +208,7 @@ function mlePrecisionFixedPoint(points::Matrix{<:AbstractFloat}, m::AbstractVect
         end
         iteration += 1
     end
-    return (precision, Δ)
+    return precision, Δ
 end
 
 function mleFixedPoint(points::Matrix{<:AbstractFloat}, tol::AbstractFloat = 1e-10,
@@ -244,5 +244,5 @@ function mleFixedPoint(points::Matrix{<:AbstractFloat}, tol::AbstractFloat = 1e-
         end
         iteration += 1
     end
-    return (α, Δ)
+    return α, Δ
 end
