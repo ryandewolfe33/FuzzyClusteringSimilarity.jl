@@ -5,7 +5,7 @@ function massageMatrix(z::AbstractMatrix{<:Real})
     catch InexactError
     end
     # Make matrices so that each column is a point. Assume #points > #clusters
-    if(size(z, 1) > size(z, 2))
+    if (size(z, 1) > size(z, 2))
         z = transpose(z)
     end
     return copy(z)

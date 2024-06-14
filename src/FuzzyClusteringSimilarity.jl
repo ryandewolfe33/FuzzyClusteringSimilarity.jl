@@ -12,7 +12,6 @@ export Consistency
 # From NDC
 export NDC
 
-
 # Adjustments
 export AbstractRandAdjustment
 export AbstractAgreementConcordance
@@ -22,7 +21,6 @@ export SymmetricDirichlet
 export FitDirichlet
 # From Permutation
 export Permutation
-
 
 # Utils
 export massageMatrix
