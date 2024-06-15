@@ -6,6 +6,14 @@ using SpecialFunctions
 include("Rand/Index.jl")
 include("Rand/Adjustment.jl")
 
+function adjustedindex(z1::AbstractMatrix{<:Real}, z2::AbstractMatrix{<:Real},
+        index::AbstractIndex, model::AbstractRandAdjustment)
+    # TODO add one vs two sided
+    # TODO add nsamples control
+    expected = expectedindex(z1, z2, index, model)
+    return (index(z1, z2, index) - expected) / (1 - expected)
+end
+
 # Indexes
 export AbstractIndex
 # From DempsterShafer

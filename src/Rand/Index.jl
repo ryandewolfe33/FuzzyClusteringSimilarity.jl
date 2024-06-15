@@ -1,5 +1,20 @@
 abstract type AbstractIndex end
 
+function index(z1::ABstractMatrix{<:Real}, z2::AbstractMatrix{<:Real}, index::AbstractIndex)
+    if size(z1, 1) != size(z2, 1)
+        throw(DimensionMismatch("Matrices must have same number of points along dimension 1. Got $(size(z1, 1)) and $(size(z2, 1))."))
+    end
+    n = size(z1, 1)
+    ncomparisons = n * (n - 1) / 2
+    totaldiscordance = 0.0
+    for i in 2:n
+        for j in 1:i
+            total_discordance += discordance(z1[:, i], z1[:, j], z2[:, i], z2[:, j], index)
+        end
+    end
+    return 1 - totaldiscordance / ncomparisons
+end
+
 #Generic error functions
 function discordance(agreement1, agreement2, index::AbstractIndex)
     throw(TypeError(
