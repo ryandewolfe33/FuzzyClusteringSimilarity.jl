@@ -9,18 +9,20 @@ struct NDC <: AbstractIndex
     p::Integer
     q::Real
     function NDC(p, q)
-        p => 0 ? DomainError(p, "value for norm must be non-negative integer.") :
-             q > 0 ? DomainError(q, "value for exponent must be positive") : new(p, q)
+        p < 0 ? throw(DomainError(p, "value for norm must be non-negative integer.")) :
+        q <= 0 ? throw(DomainError(q, "value for exponent must be positive")) : new(p, q)
     end
 end
 
+# TODO one value defaults
+function NDC()
+    return NDC(1, 1)
+end
 
-function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::NDC)
-    <:Real
+function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::NDC)::Real
     return 1 - norm(ui - uj, index.p)
 end
 
-function discordance(agreement1::Real, agreement2::Real, index::NDC)
-    <:Real
+function discordance(agreement1::Real, agreement2::Real, index::NDC)::Real
     return abs(agreement1 - agreement2)^index.p
 end

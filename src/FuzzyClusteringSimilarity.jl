@@ -5,6 +5,7 @@ using SpecialFunctions
 
 include("Rand/Index.jl")
 include("Rand/Adjustment.jl")
+include("MassageMatrix.jl")
 
 function adjustedindex(z1::AbstractMatrix{<:Real}, z2::AbstractMatrix{<:Real},
         index::AbstractIndex, model::AbstractRandAdjustment)
@@ -32,6 +33,11 @@ export SymmetricDirichlet
 export FitDirichlet
 # From Permutation
 export Permutation
+
+# functions
+export index
+export expectedindex
+export adjustedindex
 
 # Utils
 export massageMatrix
