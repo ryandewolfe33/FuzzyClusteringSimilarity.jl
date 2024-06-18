@@ -5,7 +5,7 @@ using Test
 # TODO fix random number for repeatability
 tol = 0.05
 
-@testset "FuzzyClusteringSimilarity.jl" begin
+@testset verbose=true "FuzzyClusteringSimilarity.jl" begin
     @testset "Massage Matrix" begin
         # Correct format
         in = [[0.5, 0.5] [0.5, 0.5] [0.5, 0.5]]
@@ -66,5 +66,54 @@ tol = 0.05
 
         result = index(b, a, ndc)
         @test result ≈ correct
+    end
+
+    @testset "Expectation Fit" begin
+        ndc = NDC()
+        fit = FitDirichlet()
+        @testset "Two Sided" begin
+            a = [[0.34, 0.33,0.33] [0.5, 0.5,0] [0, 0.5,0.5]]
+            b = [[0.5, 0.5] [0.5, 0.5] [0.5, 0.5]]
+            result = expectedindex(a, b, ndc, fit, onesided = false)
+            @test isapprox(result, 0.499, atol = tol)
+
+            a = [[1, 0,0] [0, 1,0] [0, 0,1]]
+            b = [[0.5, 0.5] [0.5, 0.5] [0.5, 0.5]]
+            result = expectedindex(a, b, ndc, fit, onesided = false)
+            @test isapprox(result, 0.501, atol = tol)
+
+            a = [[0.5, 0.5] [0.5, 0.5] [0.5, 0.5]]
+            b = [[1, 0,0] [0, 1,0] [0, 0,1]]
+            result = expectedindex(a, b, ndc, fit, onesided = false)
+            @test isapprox(result, 0.500, atol = tol)
+
+            a = [[1, 0] [1, 0] [0, 1]]
+            b = [[1, 0,0] [0, 1,0] [0, 0,1]]
+            result = expectedindex(a, b, ndc, fit, onesided = false)
+            @test isapprox(result, 0.481, atol = tol)
+        end
+
+        @testset "One Sided" begin
+            # using Logging; debuglogger = ConsoleLogger(stderr, Logging.Debug); global_logger(debuglogger);
+            a = [[0.34, 0.33,0.33] [0.5, 0.5,0] [0, 0.5,0.5]]
+            b = [[0.48, 0.52] [0.52, 0.48] [0.5, 0.5]]
+            result = expectedindex(a, b, ndc, fit)
+            @test isapprox(result, 0.62, atol = tol)
+
+            a = [[1, 0,0] [0, 1,0] [0, 0,1]]
+            b = [[0.48, 0.52] [0.52, 0.48] [0.5, 0.5]]
+            result = expectedindex(a, b, ndc, fit)
+            @test isapprox(result, 0.02, atol = tol)
+
+            a = [[0.48, 0.52] [0.52, 0.48] [0.5, 0.5]]
+            b = [[1, 0,0] [0, 1,0] [0, 0,1]]
+            result = expectedindex(a, b, ndc, fit)
+            @test isapprox(result, 0.34, atol = tol)
+
+            a = [[1, 0] [1, 0] [0, 1]]
+            a = [[1, 0] [1, 0] [0, 1]]
+            result = expectedindex(a, b, ndc, fit)
+            @test isapprox(result, 0.55, atol = tol)
+        end
     end
 end

@@ -5,26 +5,29 @@ struct FitDirichlet <: AbstractAgreementConcordance end
 function expectedindex(
         z1::AbstractMatrix{<:Real},
         z2::AbstractMatrix{<:Real},
-        model::AbstractAgreementConcordance,
-        index::AbstractIndex;
-        oneSided::Bool = True,
+        index::AbstractIndex,
+        model::AbstractAgreementConcordance;
+        onesided::Bool = true,
         nsamples::Int = 1000000
-)
-    <:Real
-
-    if oneSided
+)::Real
+    if onesided
+        @debug "Fitting Distribution to z2."
         dist = fitdist(z2, model)
+        @debug "Fit $(dist)"
         return expectedindex(z1, dist, index, nsamples = nsamples)
     else
+        @debug "Fitting Distribution to z1."
         dist1 = fitdist(z1, model)
+        @debug "Fit $(dist1)"
+        @debug "Fitting Distribution to z2."
         dist2 = fitdist(z2, model)
+        @debug "Fit $(dist2)"
         return expectedindex(dist1, dist2, index, nsamples = nsamples)
     end
 end
 
 function expectedindex(dist1::Distribution, dist2::Distribution,
-        index::AbstractIndex; nsamples::Int = 1000000)
-    <:Real
+        index::AbstractIndex; nsamples::Int = 1000000)::Real
     totaldiscordance = 0.0
     for _ in 1:nsamples
         # TODO better method for checking isfinite (nans and infs both appear)
@@ -54,17 +57,18 @@ end
 
 function expectedindex(
         z1::AbstractMatrix{<:Real}, dist::Distribution, index::AbstractIndex;
-        nsamples::Int = 1000000, exact::Bool = false)
-    <:Real
+        nsamples::Int = 1000000, exact::Bool = false)::Real
     if exact
+        @debug "Calculating exact expectation."
         return exactexpectedindex(z1, dist, index, nsamples = nsamples)
     else
+        @debug "Calculating approximate expectation."
         return approxexpectedindex(z1, dist, index, nsamples = nsamples)
     end
 end
 
 function exactexpectedindex(z1::AbstractMatrix{<:Real}, dist::Distribution,
-        index::AbstractIndex; nsamples::Int = 1000000)
+        index::AbstractIndex; nsamples::Int = 100000)::Real
     z1agreements = agreement(z1)
     totaldiscordance = 0.0
     for _ in 1:nsamples
@@ -92,9 +96,10 @@ end
 # Approximate the expected accuracy computation by binning the z1 agreements
 function approxexpectedindex(
         z1::AbstractMatrix{<:Real}, dist::Distribution, index::AbstractIndex;
-        nsamples::Int = 1000000, accuracy::Real = 0.0001)
+        nsamples::Int = 100000, accuracy::Real = 0.001)::Real
     # Create z1 agreement approximations. Index i = j means there were j agreements in the bin i*accuracy to (i+1)*accuracy
     nbins = ceil(Int64, 1 / accuracy)
+    @debug "$(nbins) bins for accuracy $(accuracy); Calculating approximate agreements."
     z1agreements = agreement(z1, index)
     weights = zeros(Int64, nbins + 1)
     for i in z1agreements
@@ -102,6 +107,7 @@ function approxexpectedindex(
         weights[bin] += 1
     end
 
+    @debug "Calculating Discordance."
     totaldiscordance = 0.0
     for _ in 1:nsamples
         x1 = rand(dist)
@@ -115,10 +121,10 @@ function approxexpectedindex(
         xagreement = agreement(x1, x2, index)
 
         currenttotaldiscordance = 0.0
-        for bin in 1:length(weights)
+        for bin in eachindex(weights)
             z1agreement = (bin - 1) * accuracy
             currenttotaldiscordance += discordance(z1agreement, xagreement, index) *
-                                       weights(bin)
+                                       weights[bin]
         end
         totaldiscordance += currenttotaldiscordance / length(z1agreements)
     end
@@ -146,9 +152,11 @@ function fitdist(
         z::AbstractMatrix{<:Real}, model::FitDirichlet; minprecision::Real = 1e-4)
     try
         α, error = mleFixedPoint(z)
+        @debug "Fit MLE to $(α)."
         # α is close to hard, or Nan (caused by close to hard mle) approximate with multinomail
         # TODO could only some of α be nan
         if all(αi < minprecision for αi in α) || !all(isfinite, α)
+            @debug "Precision too low or not finite, fitting hard."
             return fithard(z)
         end
         return Dirichlet(α)
@@ -160,6 +168,11 @@ function fitdist(
             throw(e)
         end
     end
+end
+
+function fitdist(
+        z::AbstractMatrix{<:Int}, model::FitDirichlet; minprecision::Real = 1e-4)
+    return fithard(z)
 end
 
 function fithard(z::AbstractMatrix{<:Real})

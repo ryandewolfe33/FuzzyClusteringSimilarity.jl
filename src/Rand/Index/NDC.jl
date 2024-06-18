@@ -20,7 +20,7 @@ function NDC()
 end
 
 function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::NDC)::Real
-    return 1 - norm(ui - uj, index.p) / 2^(1/index.p)
+    return 1 - norm(ui - uj, index.p) / 2^(1 / index.p)  # Scaling to get agreement between 0 and 1
 end
 
 function discordance(agreement1::Real, agreement2::Real, index::NDC)::Real

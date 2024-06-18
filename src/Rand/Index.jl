@@ -40,7 +40,7 @@ end
 function agreement(z1::AbstractMatrix{<:Real}, index::AbstractIndex)::Vector{Float64}
     npoints = size(z1, 2)
     ncomparisons = npoints * (npoints - 1) / 2
-    zagreements = Vector{Float64}(undef, ncomparisons)
+    zagreements = Vector{Float64}(undef, convert(Int, ncomparisons))
     indexcurrent = 1
     for i in 2:npoints
         for j in 1:(i - 1)

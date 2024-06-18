@@ -5,7 +5,7 @@ abstract type AbstractAgreementConcordance <: AbstractRandAdjustment end
 function expectedindex(z1::AbstractMatrix, z2::AbstractMatrix,
         index::AbstractIndex, model::AbstractRandAdjustment)
     throw(TypeError(
-        model, "Model is not defined not defined", AbstractRandAdjustment, type(model)))
+        :expectedindex, "Model is not defined not defined", AbstractRandAdjustment, model))
 end
 
 for fname in [
