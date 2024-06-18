@@ -20,9 +20,9 @@ function NDC()
 end
 
 function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::NDC)::Real
-    return 1 - norm(ui - uj, index.p)
+    return 1 - norm(ui - uj, index.p) / 2^(1/index.p)
 end
 
 function discordance(agreement1::Real, agreement2::Real, index::NDC)::Real
-    return abs(agreement1 - agreement2)^index.p
+    return abs(agreement1 - agreement2)^index.q
 end

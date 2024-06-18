@@ -4,6 +4,7 @@ function index(z1::AbstractMatrix{<:Real}, z2::AbstractMatrix{<:Real}, index::Ab
     if size(z1, 2) != size(z2, 2)
         throw(DimensionMismatch("Matrices must have same number of points along dimension 1. Got $(size(z1, 1)) and $(size(z2, 1))."))
     end
+    @debug "Matrices of size $(size(z1)) and $(size(z2))."
     npoints = size(z1, 2)
     ncomparisons = npoints * (npoints - 1) / 2
     totaldiscordance = 0.0
@@ -12,6 +13,7 @@ function index(z1::AbstractMatrix{<:Real}, z2::AbstractMatrix{<:Real}, index::Ab
             totaldiscordance += discordance(z1[:, i], z1[:, j], z2[:, i], z2[:, j], index)
         end
     end
+    @debug "Total discordance of $(totaldscordance) over $(ncomparisons) comparisons."
     return 1 - totaldiscordance / ncomparisons
 end
 
