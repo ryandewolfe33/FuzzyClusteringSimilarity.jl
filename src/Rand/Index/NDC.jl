@@ -5,7 +5,7 @@ disc = |α^U(i,j) - α^V(i,j)|
 
 using LinearAlgebra
 
-struct NDC <: AbstractIndex
+struct NDC <: AbstractAgreementConcordanceIndex
     p::Integer
     q::Real
     function NDC(p, q)

@@ -1,12 +1,12 @@
 struct Permutation <: AbstractRandAdjustment end
 
-function expectedindex(
-        z1::AbstractMatrix, z2::AbstractMatrix, index::AbstractIndex, model::Permutation)
+function expectedsimilarity(
+        z1::AbstractMatrix, z2::AbstractMatrix, index::AbstractAgreementConcordanceIndex, model::Permutation)
     npoints = size(z1, 2)
     n = npoints * (npoints - 1) / 2
 
-    agreements1 = makeAgreements(z1, index)
-    agreements2 = makeAgreements(z2, index)
+    agreements1 = agreements(z1, index)
+    agreements2 = agreements(z2, index)
 
     sort!(agreements1)
     sort!(agreements2)
@@ -41,21 +41,21 @@ function makeS(x::AbstractVector, y::AbstractVector)
     return s
 end
 
-# TODO remove, use general agreement
-function makeAgreements(z::AbstractMatrix, index::AbstractIndex)
-    <:Vector{Real}
-    # Make a vector of intraclustering agreements from clustering z.
-    npoints = size(z, 2)
-    n = npoints * (npoints - 1) / 2
-    agreements = Vector{Float64}(undef, convert(Int, n))
+function expectedsimilarity(
+        z1::AbstractMatrix, z2::AbstractMatrix, index::Frobenious, model::Permutation)
+    B1 = transpose(z1) * z1
+    B2 = transpose(z2) * z2
+    one = ones(size(B1))
+    n = size(B1, 2)
+    M = one / n
+    R = M - I
 
-    k = 1
-    for i in 2:npoints
-        for j in 1:(i - 1)
-            disagreements[k] = agreement(z[:, i], z[:, j], index)
-            k += 1
-        end
-    end
-
-    return agreements
+    term1 = 2 * frobinnerproduct(B1, one) * frobinnerproduct(B2, one) /
+            (frobinnerproduct(B1, B1) * frobinnerproduct(B2, B2))
+    term2 = frobinnerproduct(M, B1) * frobinnerproduct(M, B2) +
+            frobinnerproduct(R, B1) * frobinnerproduct(R, B2) / (n - 1)
+    term3 = frobinnerproduct(B1, one)^2 / frobinnerproduct(B1, B1)
+    term4 = frobinnerproduct(B2, one)^2 / frobinnerproduct(B2, B2)
+    term5 = n^2 - n
+    return (term1 * term2 - term3 - term4 + term5) / (n * (n - 1))
 end

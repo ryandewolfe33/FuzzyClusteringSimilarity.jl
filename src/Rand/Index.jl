@@ -1,6 +1,8 @@
 abstract type AbstractIndex end
+abstract type AbstractAgreementConcordanceIndex <: AbstractIndex end
 
-function index(z1::AbstractMatrix{<:Real}, z2::AbstractMatrix{<:Real}, index::AbstractIndex)
+function similarity(
+        z1::AbstractMatrix{<:Real}, z2::AbstractMatrix{<:Real}, index::AbstractIndex)
     if size(z1, 2) != size(z2, 2)
         throw(DimensionMismatch("Matrices must have same number of points along dimension 1. Got $(size(z1, 1)) and $(size(z2, 1))."))
     end
@@ -30,14 +32,15 @@ end
 
 # Generic Discordance function
 function discordance(ui::Vector{<:Real}, uj::Vector{<:Real}, vi::Vector{<:Real},
-        vj::Vector{<:Real}, index::AbstractIndex)::Real
+        vj::Vector{<:Real}, index::AbstractAgreementConcordanceIndex)::Real
     agreement1 = agreement(ui, uj, index)
     agreement2 = agreement(vi, vj, index)
     return discordance(agreement1, agreement2, index)
 end
 
 # Create a vector of agreements of the n(n-1)/2 comparisons from a zig matrix
-function agreement(z1::AbstractMatrix{<:Real}, index::AbstractIndex)::Vector{Float64}
+function agreement(z1::AbstractMatrix{<:Real},
+        index::AbstractAgreementConcordanceIndex)::Vector{Float64}
     npoints = size(z1, 2)
     ncomparisons = npoints * (npoints - 1) / 2
     zagreements = Vector{Float64}(undef, convert(Int, ncomparisons))
@@ -53,7 +56,8 @@ end
 
 for fname in [
     "DempsterShafer.jl",
-    "NDC.jl"
+    "NDC.jl",
+    "Frobenious.jl"
 ]
     include(joinpath("Index", fname))
 end

@@ -7,12 +7,12 @@ include("Rand/Index.jl")
 include("Rand/Adjustment.jl")
 include("MassageMatrix.jl")
 
-function adjustedindex(z1::AbstractMatrix{<:Real}, z2::AbstractMatrix{<:Real},
+function adjustedsimilarity(z1::AbstractMatrix{<:Real}, z2::AbstractMatrix{<:Real},
         index::AbstractIndex, model::AbstractRandAdjustment)
     # TODO add one vs two sided
     # TODO add nsamples control
-    expected = expectedindex(z1, z2, index, model)
-    return (index(z1, z2, index) - expected) / (1 - expected)
+    expected = expectedsimilarity(z1, z2, index, model)
+    return (similarity(z1, z2, index) - expected) / (1 - expected)
 end
 
 # Indexes
@@ -23,6 +23,8 @@ export Belief
 export Consistency
 # From NDC
 export NDC
+# From Frobenious
+export Frobenious
 
 # Adjustments
 export AbstractRandAdjustment
@@ -35,9 +37,9 @@ export FitDirichlet
 export Permutation
 
 # functions
-export index
-export expectedindex
-export adjustedindex
+export similarity
+export expectedsimilarity
+export adjustedsimilarity
 
 # Utils
 export massageMatrix

@@ -2,10 +2,10 @@ struct FlatDirichlet <: AbstractAgreementConcordance end
 struct SymmetricDirichlet <: AbstractAgreementConcordance end
 struct FitDirichlet <: AbstractAgreementConcordance end
 
-function expectedindex(
+function expectedsimilarity(
         z1::AbstractMatrix{<:Real},
         z2::AbstractMatrix{<:Real},
-        index::AbstractIndex,
+        index::AbstractAgreementConcordanceIndex,
         model::AbstractAgreementConcordance;
         onesided::Bool = true,
         nsamples::Int = 1000000
@@ -14,7 +14,7 @@ function expectedindex(
         @debug "Fitting Distribution to z2."
         dist = fitdist(z2, model)
         @debug "Fit $(dist)"
-        return expectedindex(z1, dist, index, nsamples = nsamples)
+        return expectedsimilarity(z1, dist, index, nsamples = nsamples)
     else
         @debug "Fitting Distribution to z1."
         dist1 = fitdist(z1, model)
@@ -22,12 +22,12 @@ function expectedindex(
         @debug "Fitting Distribution to z2."
         dist2 = fitdist(z2, model)
         @debug "Fit $(dist2)"
-        return expectedindex(dist1, dist2, index, nsamples = nsamples)
+        return expectedsimilarity(dist1, dist2, index, nsamples = nsamples)
     end
 end
 
-function expectedindex(dist1::Distribution, dist2::Distribution,
-        index::AbstractIndex; nsamples::Int = 1000000)::Real
+function expectedsimilarity(dist1::Distribution, dist2::Distribution,
+        index::AbstractAgreementConcordanceIndex; nsamples::Int = 1000000)::Real
     totaldiscordance = 0.0
     for _ in 1:nsamples
         # TODO better method for checking isfinite (nans and infs both appear)
@@ -55,19 +55,19 @@ function expectedindex(dist1::Distribution, dist2::Distribution,
     return 1 - totaldiscordance / nsamples
 end
 
-function expectedindex(
-        z1::AbstractMatrix{<:Real}, dist::Distribution, index::AbstractIndex;
+function expectedsimilarity(
+        z1::AbstractMatrix{<:Real}, dist::Distribution, index::AbstractAgreementConcordanceIndex;
         nsamples::Int = 1000000, exact::Bool = false)::Real
     if exact
         @debug "Calculating exact expectation."
-        return exactexpectedindex(z1, dist, index, nsamples = nsamples)
+        return exactexpectedsimilarity(z1, dist, index, nsamples = nsamples)
     else
         @debug "Calculating approximate expectation."
-        return approxexpectedindex(z1, dist, index, nsamples = nsamples)
+        return approxexpectedsimilarity(z1, dist, index, nsamples = nsamples)
     end
 end
 
-function exactexpectedindex(z1::AbstractMatrix{<:Real}, dist::Distribution,
+function exactexpectedsimilarity(z1::AbstractMatrix{<:Real}, dist::Distribution,
         index::AbstractIndex; nsamples::Int = 100000)::Real
     z1agreements = agreement(z1)
     totaldiscordance = 0.0
@@ -94,7 +94,7 @@ function exactexpectedindex(z1::AbstractMatrix{<:Real}, dist::Distribution,
 end
 
 # Approximate the expected accuracy computation by binning the z1 agreements
-function approxexpectedindex(
+function approxexpectedsimilarity(
         z1::AbstractMatrix{<:Real}, dist::Distribution, index::AbstractIndex;
         nsamples::Int = 100000, accuracy::Real = 0.001)::Real
     # Create z1 agreement approximations. Index i = j means there were j agreements in the bin i*accuracy to (i+1)*accuracy

@@ -48,23 +48,23 @@ tol = 0.05
         # Correct answer taken from https://github.com/its-likeli-jeff/FARI, assumed correct
         a = [[0.5, 0.5] [0.5, 0.5] [0.5, 0.5]]
         b = [[0.5, 0.5] [0.5, 0.5] [0.5, 0.5]]
-        result = index(a, b, ndc)
+        result = similarity(a, b, ndc)
         correct = 1
         @test result ≈ correct
 
         a = [[0.34, 0.33,0.33] [0.5, 0.5,0] [0, 0.5,0.5]]
         b = [[0.5, 0.5] [0.5, 0.5] [0.5, 0.5]]
-        result = index(a, b, ndc)
+        result = similarity(a, b, ndc)
         correct = 0.61
         @test result ≈ correct
 
         a = [[1, 0] [0, 1] [0.5, 0.5]]
         b = [[0.5, 0.5] [0.3, 0.7] [0.5, 0.5]]
-        result = index(a, b, ndc)
+        result = similarity(a, b, ndc)
         correct = 0.4666666666666
         @test result ≈ correct
 
-        result = index(b, a, ndc)
+        result = similarity(b, a, ndc)
         @test result ≈ correct
     end
 
@@ -74,22 +74,22 @@ tol = 0.05
         @testset "Two Sided" begin
             a = [[0.34, 0.33,0.33] [0.5, 0.5,0] [0, 0.5,0.5]]
             b = [[0.5, 0.5] [0.5, 0.5] [0.5, 0.5]]
-            result = expectedindex(a, b, ndc, fit, onesided = false)
+            result = expectedsimilarity(a, b, ndc, fit, onesided = false)
             @test isapprox(result, 0.499, atol = tol)
 
             a = [[1, 0,0] [0, 1,0] [0, 0,1]]
             b = [[0.5, 0.5] [0.5, 0.5] [0.5, 0.5]]
-            result = expectedindex(a, b, ndc, fit, onesided = false)
+            result = expectedsimilarity(a, b, ndc, fit, onesided = false)
             @test isapprox(result, 0.501, atol = tol)
 
             a = [[0.5, 0.5] [0.5, 0.5] [0.5, 0.5]]
             b = [[1, 0,0] [0, 1,0] [0, 0,1]]
-            result = expectedindex(a, b, ndc, fit, onesided = false)
+            result = expectedsimilarity(a, b, ndc, fit, onesided = false)
             @test isapprox(result, 0.500, atol = tol)
 
             a = [[1, 0] [1, 0] [0, 1]]
             b = [[1, 0,0] [0, 1,0] [0, 0,1]]
-            result = expectedindex(a, b, ndc, fit, onesided = false)
+            result = expectedsimilarity(a, b, ndc, fit, onesided = false)
             @test isapprox(result, 0.481, atol = tol)
         end
 
@@ -97,23 +97,45 @@ tol = 0.05
             # using Logging; debuglogger = ConsoleLogger(stderr, Logging.Debug); global_logger(debuglogger);
             a = [[0.34, 0.33,0.33] [0.5, 0.5,0] [0, 0.5,0.5]]
             b = [[0.48, 0.52] [0.52, 0.48] [0.5, 0.5]]
-            result = expectedindex(a, b, ndc, fit)
+            result = expectedsimilarity(a, b, ndc, fit)
             @test isapprox(result, 0.62, atol = tol)
 
             a = [[1, 0,0] [0, 1,0] [0, 0,1]]
             b = [[0.48, 0.52] [0.52, 0.48] [0.5, 0.5]]
-            result = expectedindex(a, b, ndc, fit)
+            result = expectedsimilarity(a, b, ndc, fit)
             @test isapprox(result, 0.02, atol = tol)
 
             a = [[0.48, 0.52] [0.52, 0.48] [0.5, 0.5]]
             b = [[1, 0,0] [0, 1,0] [0, 0,1]]
-            result = expectedindex(a, b, ndc, fit)
+            result = expectedsimilarity(a, b, ndc, fit)
             @test isapprox(result, 0.34, atol = tol)
 
             a = [[1, 0] [1, 0] [0, 1]]
             a = [[1, 0] [1, 0] [0, 1]]
-            result = expectedindex(a, b, ndc, fit)
+            result = expectedsimilarity(a, b, ndc, fit)
             @test isapprox(result, 0.55, atol = tol)
         end
+    end
+
+    @testset "Frobenious" begin
+        fri = Frobenious()
+
+        a = [[0.48, 0.52] [0.52, 0.48] [0.5, 0.5]]
+        b = [[0.48, 0.52] [0.52, 0.48] [0.5, 0.5]]
+        result = similarity(a, b, fri)
+        @test result == 1
+
+        a = [[0.34, 0.33,0.33] [0.5, 0.5,0] [0, 0.5,0.5]]
+        b = [[0.48, 0.52] [0.52, 0.48] [0.5, 0.5]]
+        result = similarity(a, b, fri)
+        correct = 0.395
+        @test isapprox(result, correct, atol = tol)
+
+        # Taken from paper
+        z1 = [[0.278, 0.378, 0.344] [0.361, 0.339, 0.300] [0.298, 0.325, 0.378] [0.319, 0.319, 0.362] [0.316, 0.379, 0.304]]
+        z2 = [[0.305, 0.327, 0.368] [0.334, 0.344, 0.323] [0.364, 0.324, 0.312] [0.296, 0.388, 0.316] [0.321, 0.342, 0.337]]
+
+        result = adjustedsimilarity(z1, z2, fri, Permutation())
+        @test result ≈ -0.3056
     end
 end

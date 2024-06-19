@@ -39,7 +39,7 @@ So writing as agreement and discordance
 α(i,j) = ui⋅uj
 disc(i,j) = (α^U(i,j) - α^V(i,j))^2
 =#
-struct Jousseleme <: AbstractIndex end
+struct Jousseleme <: AbstractAgreementConcordanceIndex end
 
 function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::Jousseleme)
     <:Real
@@ -63,7 +63,7 @@ So agreement and discordance are given by
 α(i,j) = ui⋅uj
 disc(i,j) = |α^U(i,j) - α^V(i,j)|
 =#
-struct Belief <: AbstractIndex end
+struct Belief <: AbstractAgreementConcordanceIndex end
 
 function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::Belief)
     <:Real
@@ -98,7 +98,7 @@ So writing as agreement and discordance
 α(i,j) = ui⋅uj
 disc(i,j) = α^U(i,j) + α^V(i,j) - 2 * α^U(i,j) * α^V(i,j)
 =#
-struct Consistency <: AbstractIndex end
+struct Consistency <: AbstractAgreementConcordanceIndex end
 
 function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::Consistency)
     <:Real
