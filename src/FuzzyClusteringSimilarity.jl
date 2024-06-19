@@ -12,6 +12,8 @@ function adjustedsimilarity(z1::AbstractMatrix{<:Real}, z2::AbstractMatrix{<:Rea
     # TODO add one vs two sided
     # TODO add nsamples control
     expected = expectedsimilarity(z1, z2, index, model)
+    println(expected)
+    println(similarity(z1, z2, index))
     return (similarity(z1, z2, index) - expected) / (1 - expected)
 end
 

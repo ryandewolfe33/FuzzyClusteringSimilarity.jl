@@ -45,17 +45,17 @@ function expectedsimilarity(
         z1::AbstractMatrix, z2::AbstractMatrix, index::Frobenious, model::Permutation)
     B1 = transpose(z1) * z1
     B2 = transpose(z2) * z2
-    one = ones(size(B1))
     n = size(B1, 2)
+    one = ones(n, n)
     M = one / n
-    R = M - I
+    R = I - M
 
-    term1 = 2 * frobinnerproduct(B1, one) * frobinnerproduct(B2, one) /
+    term1 = frobinnerproduct(B1, one) * frobinnerproduct(B2, one) /
             (frobinnerproduct(B1, B1) * frobinnerproduct(B2, B2))
     term2 = frobinnerproduct(M, B1) * frobinnerproduct(M, B2) +
             frobinnerproduct(R, B1) * frobinnerproduct(R, B2) / (n - 1)
     term3 = frobinnerproduct(B1, one)^2 / frobinnerproduct(B1, B1)
     term4 = frobinnerproduct(B2, one)^2 / frobinnerproduct(B2, B2)
     term5 = n^2 - n
-    return (term1 * term2 - term3 - term4 + term5) / (n * (n - 1))
+    return (2 * term1 * term2 - term3 - term4 + term5) / (n * (n - 1))
 end

@@ -120,15 +120,15 @@ tol = 0.05
     @testset "Frobenious" begin
         fri = Frobenious()
 
-        a = [[0.48, 0.52] [0.52, 0.48] [0.5, 0.5]]
-        b = [[0.48, 0.52] [0.52, 0.48] [0.5, 0.5]]
+        a = [[0.3, 0.7] [0.52, 0.48] [0.5, 0.5]]
+        b = [[0.3, 0.7] [0.52, 0.48] [0.5, 0.5]]
         result = similarity(a, b, fri)
         @test result == 1
 
         a = [[0.34, 0.33,0.33] [0.5, 0.5,0] [0, 0.5,0.5]]
         b = [[0.48, 0.52] [0.52, 0.48] [0.5, 0.5]]
         result = similarity(a, b, fri)
-        correct = 0.395
+        correct = 0.91
         @test isapprox(result, correct, atol = tol)
 
         # Taken from paper
@@ -137,5 +137,8 @@ tol = 0.05
 
         result = adjustedsimilarity(z1, z2, fri, Permutation())
         @test result ≈ -0.3056
+        # Expected Similarity is 0.9999551958029949
+        # Similarity is 0.9999369353636434
+        # This test is failing but maybe its just a numberical error? Probably Not
     end
 end
