@@ -5,7 +5,7 @@ abstract type AbstractAgreementConcordance <: AbstractRandAdjustment end
 function expectedsimilarity(z1::AbstractMatrix, z2::AbstractMatrix,
         index::AbstractIndex, model::AbstractRandAdjustment; onesided::Bool=true)
     throw(TypeError(
-        :expectedindex, "Model is not defined not defined", AbstractRandAdjustment, model))
+        :expectedsimilarity, "", AbstractRandAdjustment, model))
 end
 
 for fname in [

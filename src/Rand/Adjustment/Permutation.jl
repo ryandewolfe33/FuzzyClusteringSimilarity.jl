@@ -1,7 +1,7 @@
 struct Permutation <: AbstractRandAdjustment end
 
 function expectedsimilarity(
-        z1::AbstractMatrix, z2::AbstractMatrix, index::AbstractAgreementConcordanceIndex, model::Permutation)
+        z1::AbstractMatrix, z2::AbstractMatrix, index::AbstractAgreementConcordanceIndex, model::Permutation; onesided=false)
     npoints = size(z1, 2)
     n = npoints * (npoints - 1) / 2
 
@@ -42,7 +42,8 @@ function makeS(x::AbstractVector, y::AbstractVector)
 end
 
 function expectedsimilarity(
-        z1::AbstractMatrix, z2::AbstractMatrix, index::Frobenious, model::Permutation)
+        z1::AbstractMatrix, z2::AbstractMatrix, index::Frobenious, model::Permutation; onesided=false)
+    # One and two sided are equal in permutation model, added to match function signature
     B1 = transpose(z1) * z1
     B2 = transpose(z2) * z2
     n = size(B1, 2)

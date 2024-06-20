@@ -19,6 +19,7 @@ end
 
 function adjustedsimilarity(zs::Vector{AbstractMatrix{<:Real}}, groundtruth::AbstractMatrix{<:Real}, index::AbstractIndex, model::AbstractRandAdjustment)
     similarities = Vector{Float64}(undef, length(zs))
+    # TODO parallel flag
     for i in eachindex(zs)
         z = zs[i]
         similarities[i] = adjustedsimilarity(z, groundtruth, index, model, onesided=true)

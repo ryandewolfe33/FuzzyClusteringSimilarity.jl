@@ -41,13 +41,11 @@ disc(i,j) = (α^U(i,j) - α^V(i,j))^2
 =#
 struct Jousseleme <: AbstractAgreementConcordanceIndex end
 
-function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::Jousseleme)
-    <:Real
+function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::Jousseleme)::Real
     return dot(ui, uj)
 end
 
-function discordance(agreement1 :: Real, agreement2 :: Real, index::Jousseleme)
-    <:Real
+function discordance(agreement1 :: Real, agreement2 :: Real, index::Jousseleme)::Real
     return (agreement1 - agreement2)^2
 end
 
@@ -65,13 +63,11 @@ disc(i,j) = |α^U(i,j) - α^V(i,j)|
 =#
 struct Belief <: AbstractAgreementConcordanceIndex end
 
-function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::Belief)
-    <:Real
+function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::Belief)::Real
     return dot(ui, uj)
 end
 
-function discordance(agreement1 :: Real, agreement2 :: Real, index::Belief)
-    <:Real
+function discordance(agreement1 :: Real, agreement2 :: Real, index::Belief)::Real
     return abs(agreement1 - agreement2)
 end
 
@@ -100,12 +96,10 @@ disc(i,j) = α^U(i,j) + α^V(i,j) - 2 * α^U(i,j) * α^V(i,j)
 =#
 struct Consistency <: AbstractAgreementConcordanceIndex end
 
-function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::Consistency)
-    <:Real
+function agreement(ui::Vector{<:Real}, uj::Vector{<:Real}, index::Consistency)::Real
     return dot(ui, uj)
 end
 
-function discordance(agreement1 :: Real, agreement2 :: Real, index::Consistency)
-    <:Real
+function discordance(agreement1 :: Real, agreement2 :: Real, index::Consistency)::Real
     return agreement1 + agreement2 - 2 * agreement1 * agreement2
 end
