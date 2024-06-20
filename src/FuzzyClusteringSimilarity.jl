@@ -17,6 +17,9 @@ function adjustedsimilarity(z1::AbstractMatrix{<:Real}, z2::AbstractMatrix{<:Rea
     return (similarity(z1, z2, index) - expected) / (1 - expected)
 end
 
+# TODO Given list of matrices return matrix of comparisons
+# TODO Given list of matrices and ground truth returns vectors of similarities
+
 # Indexes
 export AbstractIndex
 # From DempsterShafer

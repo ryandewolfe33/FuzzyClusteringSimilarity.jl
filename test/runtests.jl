@@ -68,52 +68,172 @@ tol = 0.05
         @test result ≈ correct
     end
 
-    @testset "Expectation Fit" begin
+    @testset verbose=true "Dirichlet Models" begin
+        # Using NDC for all tests for simplicity
         ndc = NDC()
-        fit = FitDirichlet()
-        @testset "Two Sided" begin
-            a = [[0.34, 0.33,0.33] [0.5, 0.5,0] [0, 0.5,0.5]]
-            b = [[0.5, 0.5] [0.5, 0.5] [0.5, 0.5]]
-            result = expectedsimilarity(a, b, ndc, fit, onesided = false)
-            @test isapprox(result, 0.499, atol = tol)
+        @testset "Expectation Fit" begin
+            fit = FitDirichlet()
+            @testset "Two Sided" begin
+                a = [[0.34, 0.33,0.33] [0.5, 0.5,0] [0, 0.5,0.5]]
+                b = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
+                result = expectedsimilarity(a, b, ndc, fit, onesided = false)
+                @test isapprox(result, 0.38, atol = tol)
 
-            a = [[1, 0,0] [0, 1,0] [0, 0,1]]
-            b = [[0.5, 0.5] [0.5, 0.5] [0.5, 0.5]]
-            result = expectedsimilarity(a, b, ndc, fit, onesided = false)
-            @test isapprox(result, 0.501, atol = tol)
+                a = [[1, 0,0] [0, 1,0] [0, 0,1]]
+                b = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
+                result = expectedsimilarity(a, b, ndc, fit, onesided = false)
+                @test isapprox(result, 0.36, atol = tol)
 
-            a = [[0.5, 0.5] [0.5, 0.5] [0.5, 0.5]]
-            b = [[1, 0,0] [0, 1,0] [0, 0,1]]
-            result = expectedsimilarity(a, b, ndc, fit, onesided = false)
-            @test isapprox(result, 0.500, atol = tol)
+                a = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
+                b = [[1, 0,0] [0, 1,0] [0, 0,1]]
+                result = expectedsimilarity(a, b, ndc, fit, onesided = false)
+                @test isapprox(result, 0.36, atol = tol)
 
-            a = [[1, 0] [1, 0] [0, 1]]
-            b = [[1, 0,0] [0, 1,0] [0, 0,1]]
-            result = expectedsimilarity(a, b, ndc, fit, onesided = false)
-            @test isapprox(result, 0.481, atol = tol)
+                a = [[1, 0] [1, 0] [0, 1]]
+                b = [[1, 0,0] [0, 1,0] [0, 0,1]]
+                result = expectedsimilarity(a, b, ndc, fit, onesided = false)
+                @test isapprox(result, 0.50, atol = tol)
+            end
+
+            @testset "One Sided" begin
+                a = [[0.34, 0.33,0.33] [0.5, 0.5,0] [0, 0.5,0.5]]
+                b = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
+                result = expectedsimilarity(a, b, ndc, fit)
+                @test isapprox(result, 0.70, atol = tol)
+
+                a = [[1, 0,0] [0, 1,0] [0, 0,1]]
+                b = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
+                result = expectedsimilarity(a, b, ndc, fit)
+                @test isapprox(result, 0.09, atol = tol)
+
+                a = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
+                b = [[1, 0,0] [0, 1,0] [0, 0,1]]
+                result = expectedsimilarity(a, b, ndc, fit)
+                @test isapprox(result, 0.34, atol = tol)
+
+                a = [[1, 0] [1, 0] [0, 1]]
+                a = [[1, 0] [1, 0] [0, 1]]
+                result = expectedsimilarity(a, b, ndc, fit)
+                @test isapprox(result, 0.55, atol = tol)
+            end
         end
 
-        @testset "One Sided" begin
-            # using Logging; debuglogger = ConsoleLogger(stderr, Logging.Debug); global_logger(debuglogger);
+        @testset "Expectation Sym" begin
+            sym = SymmetricDirichlet()
+            @testset "Two Sided" begin
+                a = [[0.34, 0.33,0.33] [0.5, 0.5,0] [0, 0.5,0.5]]
+                b = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
+                result = expectedsimilarity(a, b, ndc, sym, onesided = false)
+                @test isapprox(result, 0.36, atol = tol)
+
+                a = [[1, 0,0] [0, 1,0] [0, 0,1]]
+                b = [[0.4, 0.6] [0.4, 0.6] [0.5, 0.5]]
+                result = expectedsimilarity(a, b, ndc, sym, onesided = false)
+                @test isapprox(result, 0.36, atol = tol)
+
+                a = [[0.4, 0.6] [0.4, 0.6] [0.5, 0.5]]
+                b = [[1, 0,0] [0, 1,0] [0, 0,1]]
+                result = expectedsimilarity(a, b, ndc, sym, onesided = false)
+                @test isapprox(result, 0.36, atol = tol)
+
+                a = [[1, 0] [1, 0] [0, 1]]
+                b = [[1, 0,0] [0, 1,0] [0, 0,1]]
+                result = expectedsimilarity(a, b, ndc, sym, onesided = false)
+                @test isapprox(result, 0.55, atol = tol)
+            end
+
+            @testset "One Sided" begin
+                a = [[0.34, 0.33,0.33] [0.5, 0.5,0] [0, 0.5,0.5]]
+                b = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
+                result = expectedsimilarity(a, b, ndc, sym)
+                @test isapprox(result, 0.70, atol = tol)
+
+                a = [[1, 0,0] [0, 1,0] [0, 0,1]]
+                b = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
+                result = expectedsimilarity(a, b, ndc, sym)
+                @test isapprox(result, 0.09, atol = tol)
+
+                a = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
+                b = [[1, 0,0] [0, 1,0] [0, 0,1]]
+                result = expectedsimilarity(a, b, ndc, sym)
+                @test isapprox(result, 0.37, atol = tol)
+
+                a = [[1, 0] [1, 0] [0, 1]]
+                b = [[1, 0,0] [0, 1,0] [0, 0,1]]
+                result = expectedsimilarity(a, b, ndc, sym)
+                @test isapprox(result, 0.5, atol = tol)
+            end
+        end
+
+        @testset "Expectation Flat" begin
+            flat = FlatDirichlet()
+            @testset "Two Sided" begin
+                a = [[0.34, 0.33,0.33] [0.5, 0.5,0] [0, 0.5,0.5]]
+                b = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
+                result = expectedsimilarity(a, b, ndc, flat, onesided = false)
+                @test isapprox(result, 0.74, atol = tol)
+
+                a = [[1, 0,0] [0, 1,0] [0, 0,1]]
+                b = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
+                result = expectedsimilarity(a, b, ndc, flat, onesided = false)
+                @test isapprox(result, 0.74, atol = tol)
+
+                a = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
+                b = [[1, 0,0] [0, 1,0] [0, 0,1]]
+                result = expectedsimilarity(a, b, ndc, flat, onesided = false)
+                @test isapprox(result, 0.74, atol = tol)
+
+                a = [[1, 0] [1, 0] [0, 1]]
+                b = [[1, 0,0] [0, 1,0] [0, 0,1]]
+                result = expectedsimilarity(a, b, ndc, flat, onesided = false)
+                @test isapprox(result, 0.67, atol = tol)
+            end
+
+            @testset "One Sided" begin
+                a = [[0.34, 0.33,0.33] [0.5, 0.5,0] [0, 0.5,0.5]]
+                b = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
+                result = expectedsimilarity(a, b, ndc, flat)
+                @test isapprox(result, 0.78, atol = tol)
+
+                a = [[1, 0,0] [0, 1,0] [0, 0,1]]
+                b = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
+                result = expectedsimilarity(a, b, ndc, flat)
+                @test isapprox(result, 0.33, atol = tol)
+
+                a = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
+                b = [[1, 0,0] [0, 1,0] [0, 0,1]]
+                result = expectedsimilarity(a, b, ndc, flat)
+                @test isapprox(result, 0.57, atol = tol)
+
+                a = [[1, 0] [1, 0] [0, 1]]
+                b = [[1, 0,0] [0, 1,0] [0, 0,1]]
+                result = expectedsimilarity(a, b, ndc, flat)
+                @test isapprox(result, 0.52, atol = tol)
+            end
+        end
+
+        @testset "Permutation" begin
+            # Permutation is the same for one or two sided
+            perm = Permutation()
             a = [[0.34, 0.33,0.33] [0.5, 0.5,0] [0, 0.5,0.5]]
-            b = [[0.48, 0.52] [0.52, 0.48] [0.5, 0.5]]
-            result = expectedsimilarity(a, b, ndc, fit)
-            @test isapprox(result, 0.62, atol = tol)
+            b = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
+            result = expectedsimilarity(a, b, ndc, perm)
+            @test isapprox(result, 0.74, atol = tol)
 
             a = [[1, 0,0] [0, 1,0] [0, 0,1]]
-            b = [[0.48, 0.52] [0.52, 0.48] [0.5, 0.5]]
-            result = expectedsimilarity(a, b, ndc, fit)
-            @test isapprox(result, 0.02, atol = tol)
+            b = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
+            result = expectedsimilarity(a, b, ndc, perm)
+            @test isapprox(result, 0.13, atol = tol)
 
-            a = [[0.48, 0.52] [0.52, 0.48] [0.5, 0.5]]
+            a = [[0.4, 0.6] [0.6, 0.4] [0.5, 0.5]]
             b = [[1, 0,0] [0, 1,0] [0, 0,1]]
-            result = expectedsimilarity(a, b, ndc, fit)
-            @test isapprox(result, 0.34, atol = tol)
+            result = expectedsimilarity(a, b, ndc, perm)
+            @test isapprox(result, 0.13, atol = tol)
 
             a = [[1, 0] [1, 0] [0, 1]]
-            a = [[1, 0] [1, 0] [0, 1]]
-            result = expectedsimilarity(a, b, ndc, fit)
-            @test isapprox(result, 0.55, atol = tol)
+            b = [[1, 0,0] [0, 1,0] [0, 0,1]]
+            result = expectedsimilarity(a, b, ndc, perm)
+            @test isapprox(result, 0.67, atol = tol)
         end
     end
 
@@ -132,8 +252,10 @@ tol = 0.05
         @test isapprox(result, correct, atol = tol)
 
         # Taken from paper
-        z1 = [[0.278, 0.378, 0.344] [0.361, 0.339, 0.300] [0.298, 0.325, 0.378] [0.319, 0.319, 0.362] [0.316, 0.379, 0.304]]
-        z2 = [[0.305, 0.327, 0.368] [0.334, 0.344, 0.323] [0.364, 0.324, 0.312] [0.296, 0.388, 0.316] [0.321, 0.342, 0.337]]
+        z1 = [[0.278, 0.378,0.344] [0.361, 0.339,0.300] [0.298, 0.325,0.378] [0.319,
+            0.319,0.362] [0.316, 0.379,0.304]]
+        z2 = [[0.305, 0.327,0.368] [0.334, 0.344,0.323] [0.364, 0.324,0.312] [0.296,
+            0.388,0.316] [0.321, 0.342,0.337]]
 
         result = adjustedsimilarity(z1, z2, fri, Permutation())
         @test result ≈ -0.3056
@@ -141,4 +263,6 @@ tol = 0.05
         # Similarity is 0.9999369353636434
         # This test is failing but maybe its just a numberical error? Probably Not
     end
+
+    # TODO Test set for DempsterShafer
 end

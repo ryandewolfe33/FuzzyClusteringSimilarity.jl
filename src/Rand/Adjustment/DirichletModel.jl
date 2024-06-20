@@ -175,6 +175,16 @@ function fitdist(
     return fithard(z)
 end
 
+function fitdist(
+        z::AbstractMatrix{<:Int}, model::SymmetricDirichlet; minprecision::Real = 1e-4)
+    return Multinomial(1, 1 / size(z, 2) * ones(size(z, 2)))
+end
+
+function fitdist(
+        z::AbstractMatrix{<:Int}, model::FlatDirichlet; minprecision::Real = 1e-4)
+    return Dirichlet(1 / size(z, 2) * ones(size(z, 2)))
+end
+
 function fithard(z::AbstractMatrix{<:Real})
     p = vec(sum(z, dims = 2)) / size(z, 2)
     return Multinomial(1, p)

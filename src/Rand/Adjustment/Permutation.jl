@@ -5,8 +5,8 @@ function expectedsimilarity(
     npoints = size(z1, 2)
     n = npoints * (npoints - 1) / 2
 
-    agreements1 = agreements(z1, index)
-    agreements2 = agreements(z2, index)
+    agreements1 = agreement(z1, index)
+    agreements2 = agreement(z2, index)
 
     sort!(agreements1)
     sort!(agreements2)
