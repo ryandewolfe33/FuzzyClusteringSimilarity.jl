@@ -8,17 +8,35 @@ include("Rand/Adjustment.jl")
 include("MassageMatrix.jl")
 
 function adjustedsimilarity(z1::AbstractMatrix{<:Real}, z2::AbstractMatrix{<:Real},
-        index::AbstractIndex, model::AbstractRandAdjustment)
+        index::AbstractIndex, model::AbstractRandAdjustment; onesided::Bool=true)
     # TODO add one vs two sided
     # TODO add nsamples control
-    expected = expectedsimilarity(z1, z2, index, model)
+    expected = expectedsimilarity(z1, z2, index, model, onesided=onesided)
     println(expected)
     println(similarity(z1, z2, index))
     return (similarity(z1, z2, index) - expected) / (1 - expected)
 end
 
-# TODO Given list of matrices return matrix of comparisons
-# TODO Given list of matrices and ground truth returns vectors of similarities
+function adjustedsimilarity(zs::Vector{AbstractMatrix{<:Real}}, groundtruth::AbstractMatrix{<:Real}, index::AbstractIndex, model::AbstractRandAdjustment)
+    similarities = Vector{Float64}(undef, length(zs))
+    for i in eachindex(zs)
+        z = zs[i]
+        similarities[i] = adjustedsimilarity(z, groundtruth, index, model, onesided=true)
+    end
+    return similarities
+end
+
+function adjustedsimilarity(zs::Vector{AbstractMatrix{<:Real}}, index::AbstractIndex, model::AbstractRandAdjustment)
+    nmats = length(zs)
+    similarities = Matrix{Float64}(undef, (nmats, nmats))
+    for i in 1:nmats
+        for j in 1:i
+            ai = adjustedsimilarity(zs[i], zs[j], index, model, onesided=false) #Two sided when no ground truth
+            similarities[i, j] = similarities[j, i] = ai
+        end
+    end
+    return similarities
+end
 
 # Indexes
 export AbstractIndex
