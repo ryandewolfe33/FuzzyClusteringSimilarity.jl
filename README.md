@@ -4,7 +4,9 @@
 [![Coverage](https://codecov.io/gh/ryandewolfe33/FuzzyClusteringSimilarity.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/ryandewolfe33/FuzzyClusteringSimilarity.jl)
 
 A collection of method for computing similarity scores (also called a similarity index) between two (possibly fuzzy) clusterings. Indexes are typically in the range [0, 1], but many random clusterings produce values very close to 1 making them difficult to interpret. An Adjusted Similarity Index is computed using the following equation:
-$$ \text{Adjusted Index} = \frac{\text{Index} - \mathbb{E}[\text{Index}]}{\max(\text{Index}) - \mathbb{E}[\text{Index}]}$$
+
+$$\text{Adjusted Index} = \frac{\text{Index} - \mathbb{E}[\text{Index}]}{\max(\text{Index}) - \mathbb{E}[\text{Index}]}$$
+
 Adjusted Indexes are in the range $(-\infty, 1)$ and an adjusted index of $0$ means that the clusterings are no more similar than expected if the clusterings had been selected at random. A popular adjusted similarity index is the Adjusted Rand Index (ARI). 
 
 Computing an adjusted similarity index requries choices of both a score and a random model. This package provides implementations of several indexes and random models that are extensions of the Rand Index to fuzzy clusterings. The choice of a particular index and random model is problem dependent. See [[1]](https://doi.org/10.1007/s11634-025-00625-w) and [[2]](https://www.jmlr.org/papers/v18/17-039.html) for a discussion of this selection.
