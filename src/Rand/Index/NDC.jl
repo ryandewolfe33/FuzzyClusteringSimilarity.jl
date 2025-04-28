@@ -14,7 +14,6 @@ struct NDC <: AbstractAgreementConcordanceIndex
     end
 end
 
-# TODO one value defaults
 function NDC()
     return NDC(1, 1)
 end

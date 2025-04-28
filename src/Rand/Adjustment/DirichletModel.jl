@@ -190,9 +190,8 @@ function fithard(z::AbstractMatrix{<:Real})
     return Multinomial(1, p)
 end
 
-# Algorithms to find the maximum liklihood of dirichlet Distributions
+# Algorithms to find the maximum liklihood of dirichlet Distributions from: Minka T (2000) Estimating a Dirichlet distribution. Technical report, MIT
 # The available method in Distributions.jl does not handle very spase well
-# TODO Minka citation for equations
 function mlePrecisionFixedPoint(
         points::Matrix{<:AbstractFloat}, tol::AbstractFloat = 1e-10,
         maxIter::Int = convert(Int, 1e5))

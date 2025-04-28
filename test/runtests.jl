@@ -45,7 +45,7 @@ tol = 0.05
         @test ndc.p == 1
         @test ndc.q == 1
 
-        # Correct answer taken from https://github.com/its-likeli-jeff/FARI, assumed correct
+        # Correct answers taken from https://github.com/its-likeli-jeff/FARI, assumed correct
         a = [[0.5, 0.5] [0.5, 0.5] [0.5, 0.5]]
         b = [[0.5, 0.5] [0.5, 0.5] [0.5, 0.5]]
         result = similarity(a, b, ndc)
@@ -321,5 +321,4 @@ tol = 0.05
 
     end
 
-    # TODO Test set for DempsterShafer
 end
