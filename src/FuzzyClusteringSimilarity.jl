@@ -11,6 +11,9 @@ function adjustedsimilarity(z1::AbstractMatrix{<:Real}, z2::AbstractMatrix{<:Rea
         index::AbstractIndex, model::AbstractRandAdjustment; onesided::Bool=true)
     # TODO add nsamples control
     expected = expectedsimilarity(z1, z2, index, model, onesided=onesided)
+    if expected > 0.99
+        @warn "Expected similarity is $(expected), results could be unstable."
+    end
     return (similarity(z1, z2, index) - expected) / (1 - expected)
 end
 
